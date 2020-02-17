@@ -1,0 +1,33 @@
+# =============== #
+# Unity generated #
+# =============== #
+# Unity3D .gitignore file.
+# Store this file at the root of your local repository.
+Library/
+Temp/
+
+# ============================================ #
+# Visual Studio / Code / MonoDevelop generated #
+# ============================================ #
+ExportedObj/
+obj/
+*.svd
+*.userprefs
+*.pidb
+*.suo
+*.unityproj
+*.booproj
+/UnityPackageManager
+.vs/
+.vscode/
+
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
