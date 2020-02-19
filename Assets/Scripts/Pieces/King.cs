@@ -8,7 +8,16 @@ public class King : ChessPiece
     {
         canCastling = true;
         maxRange = 2;
-        allowedMoveDirections = new List<Vector2>
+        directionsAndDestination.Add(new Vector2(1f, 1f), new List<Vector2>());
+        directionsAndDestination.Add(new Vector2(1f, -1f), new List<Vector2>());
+        directionsAndDestination.Add(new Vector2(-1f, 1f), new List<Vector2>());
+        directionsAndDestination.Add(new Vector2(-1f, -1f), new List<Vector2>());
+        directionsAndDestination.Add(Vector2.up, new List<Vector2>());
+        directionsAndDestination.Add(Vector2.down, new List<Vector2>());
+        directionsAndDestination.Add(Vector2.right, new List<Vector2>());
+        directionsAndDestination.Add(Vector2.left, new List<Vector2>());
+
+        /*allowedMoveDirections = new List<Vector2>
         {
             Vector2.up,
             Vector2.down,
@@ -18,7 +27,7 @@ public class King : ChessPiece
             new Vector2(1f,-1f),
             new Vector2(-1f,1f),
             new Vector2(-1f,-1f),
-        };
+        };*/
     }
 
     public override void Moved(Vector2 origin, Vector2 destination)

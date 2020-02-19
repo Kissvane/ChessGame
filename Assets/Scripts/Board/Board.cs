@@ -37,7 +37,18 @@ public class Board : MonoBehaviour
 
     void ShowValidMoves(string name, GenericDictionary args)
     {
+        ChessPiece piece = args.Get("movedPiece");
+        int originLine = args.Get("originLine");
+        int originColumn = args.Get("originColumn");
+        //calculte coord to test
+        foreach (Vector2 direction in piece.directionsAndDestination.Keys)
+        {
 
+            if (piece.directionsAndDestination[direction] != null)
+            {
+
+            }
+        }
     }
 
     public void SetPieceOnBox(ChessPiece piece,int lineDestination, int columnDestination, TeamManager team)

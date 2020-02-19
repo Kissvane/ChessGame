@@ -4,8 +4,9 @@ using UnityEngine;
 
 public abstract class ChessPiece : MonoBehaviour
 {
-    protected List<Vector2> allowedMoveDirections;
-    protected int maxRange = 0;
+    public Dictionary<Vector2,List<Vector2>> directionsAndDestination = new Dictionary<Vector2, List<Vector2>>();
+    //protected List<Vector2> allowedMoveDirections;
+    public int maxRange = 0;
     public List<Vector2> possibleDestinations;
     public TeamManager team;
     public bool hasMoved = false;
@@ -15,13 +16,11 @@ public abstract class ChessPiece : MonoBehaviour
 
     public virtual void CalculatePossibleDestinations()
     {
-        SetMovementLimit();
-
         for (int i = 1; i < maxRange; i++)
         {
-            foreach (Vector2 direction in allowedMoveDirections)
+            foreach (Vector2 direction in directionsAndDestination.Keys)
             {
-                possibleDestinations.Add(direction * i);
+                directionsAndDestination[direction].Add(direction * i);
             }
         }
     }
@@ -41,7 +40,6 @@ public abstract class ChessPiece : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        CalculatePossibleDestinations();
     }
 
 }

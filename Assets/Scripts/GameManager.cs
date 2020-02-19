@@ -15,8 +15,6 @@ public class GameManager : MonoBehaviour
         whiteTeam.positionTeam(board);
         blackTeam.positionTeam(board);
         MyEventSystem.instance.Set("whiteIsPlaying", whiteIsPlaying);
-
-        
     }
 
     

@@ -9,8 +9,8 @@ public class Pawn : ChessPiece
     public override void SetMovementLimit()
     {
         maxRange = 3;
-        allowedMoveDirections = new List<Vector2>();
-        allowedMoveDirections.Add(team.teamEnum == Team.White ? Vector2.up : Vector2.down);
+        directionsAndDestination = new Dictionary<Vector2, List<Vector2>>();
+        directionsAndDestination.Add(team.teamEnum == Team.White ? Vector2.up : Vector2.down, new List<Vector2>());
     }
 
     public override void Moved(Vector2 origin,Vector2 destination)
@@ -24,7 +24,6 @@ public class Pawn : ChessPiece
             }
 
             maxRange = 2;
-            CalculatePossibleDestinations();
         }
         else
         {

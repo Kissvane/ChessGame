@@ -11,13 +11,22 @@ public class Knight : ChessPiece
 
     public override void CalculatePossibleDestinations()
     {
-        possibleDestinations.Add(new Vector2(1f, 2f));
+        directionsAndDestination.Add(new Vector2(1f, 2f), null);
+        directionsAndDestination.Add(new Vector2(2f, 1f), null);
+        directionsAndDestination.Add(new Vector2(-1f, 2f), null);
+        directionsAndDestination.Add(new Vector2(-2f, 1f), null);
+        directionsAndDestination.Add(new Vector2(1f, -2f), null);
+        directionsAndDestination.Add(new Vector2(2f, -1f), null);
+        directionsAndDestination.Add(new Vector2(-1f, -2f), null);
+        directionsAndDestination.Add(new Vector2(-2f, -1f), null);
+
+        /*possibleDestinations.Add(new Vector2(1f, 2f));
         possibleDestinations.Add(new Vector2(2f, 1f));
         possibleDestinations.Add(new Vector2(-1f, 2f));
         possibleDestinations.Add(new Vector2(-2f, 1f));
         possibleDestinations.Add(new Vector2(1f, -2f));
         possibleDestinations.Add(new Vector2(2f, -1f));
         possibleDestinations.Add(new Vector2(-1f, -2f));
-        possibleDestinations.Add(new Vector2(-2f, -1f));
+        possibleDestinations.Add(new Vector2(-2f, -1f));*/
     }
 }

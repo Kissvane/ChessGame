@@ -7,12 +7,16 @@ public class Fool : ChessPiece
     public override void SetMovementLimit()
     {
         maxRange = 8;
-        allowedMoveDirections = new List<Vector2>
+        directionsAndDestination.Add(new Vector2(1f, 1f),new List<Vector2>());
+        directionsAndDestination.Add(new Vector2(1f, -1f), new List<Vector2>());
+        directionsAndDestination.Add(new Vector2(-1f, 1f), new List<Vector2>());
+        directionsAndDestination.Add(new Vector2(-1f, -1f), new List<Vector2>());
+        /*allowedMoveDirections = new List<Vector2>
         {
             new Vector2(1f,1f),
             new Vector2(1f,-1f),
             new Vector2(-1f,1f),
             new Vector2(-1f,-1f)
-        };
+        };*/
     }
 }
