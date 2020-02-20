@@ -65,6 +65,7 @@
     <Compile Include="Assets\3rdParty\Chess\Demo\Scripts\Main.cs" />
     <Compile Include="Assets\3rdParty\Chess\Scripts\ChessUiEngine.cs" />
     <Compile Include="Assets\Scripts\Board\Board.cs" />
+    <Compile Include="Assets\Scripts\Board\BoardConstructor.cs" />
     <Compile Include="Assets\Scripts\Board\ChessboardBox.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\InputsManager.cs" />

@@ -4,24 +4,52 @@ using UnityEngine;
 
 public abstract class ChessPiece : MonoBehaviour
 {
-    public Dictionary<Vector2,List<Vector2>> directionsAndDestination = new Dictionary<Vector2, List<Vector2>>();
+    public Dictionary<Vector2,bool> moveDirectionsAndBlockedState = new Dictionary<Vector2, bool>();
     //protected List<Vector2> allowedMoveDirections;
     public int maxRange = 0;
-    public List<Vector2> possibleDestinations;
+    public List<Vector2> availableMoves;
     public TeamManager team;
     public bool hasMoved = false;
     public Renderer pawnRenderer;
     public SpriteRenderer iconRenderer;
     public bool canCastling = false;
 
-    public virtual void CalculatePossibleDestinations()
+    public virtual void CalculateAvailableMoves(GenericDictionary args)
     {
-        for (int i = 1; i < maxRange; i++)
+        ResetBlockedDirections();
+        availableMoves.Clear();
+        for (int i = 1; i <= maxRange; i++)
         {
-            foreach (Vector2 direction in directionsAndDestination.Keys)
+            foreach (Vector2 direction in moveDirectionsAndBlockedState.Keys)
             {
-                directionsAndDestination[direction].Add(direction * i);
+                //if this direction is not blocked
+                if (!moveDirectionsAndBlockedState[direction])
+                {
+                    GenericDictionary data = new GenericDictionary();
+                    data.Set("originLine", args.Get("originLine"));
+                    data.Set("originColumn", args.Get("originColumn"));
+                    data.Set("destinationLine", direction.y * i);
+                    data.Set("destinationColumn", direction.x * i);
+                    data.Set("movedPiece", this);
+                    if (MyEventSystem.instance.Get("isValidMovement", data))
+                    {
+                        availableMoves.Add(direction*i);
+                    }
+                    else
+                    {
+                        //for this calculation turn this direction is blocked
+                        moveDirectionsAndBlockedState[direction] = true;
+                    }
+                }
             }
+        }
+    }
+
+    public void ResetBlockedDirections()
+    {
+        foreach (Vector2 direction in moveDirectionsAndBlockedState.Keys)
+        {
+            moveDirectionsAndBlockedState[direction] = false;
         }
     }
 

@@ -2,96 +2,80 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Board : MonoBehaviour
+public class Board
 {
-    public Color blackColor;
-    public Color whiteColor;
-    public Vector3 boardOrigin = Vector3.zero;
-    public float caseSize = 0.5f;
-    public float pawnSize = 0.5f;
-    public GameObject casePrefab;
-    public List<List<ChessboardBox>> chessboardBoxes;
-
-    public GameObject KingPfb;
-    public GameObject QueenPfb;
-    public GameObject FoolPfb;
-    public GameObject TowerPfb;
-    public GameObject PawnPfb;
-    public GameObject KnightPfb;
-
-    private void Start()
+    public List<List<ChessboardBox>> chessboardBoxes = new List<List<ChessboardBox>>();
+    
+    public Board(List<List<ChessboardBox>> boxes)
     {
-        MyEventSystem.instance.RegisterToEvent("ShowValidMoves", this, ShowValidMoves);
+        chessboardBoxes = boxes;
+    }
+
+    public Board(Board original)
+    {
+        for (int i = 0; i < original.chessboardBoxes.Count; i++)
+        {
+            chessboardBoxes.AddRange(original.chessboardBoxes);
+        }
+    }
+
+
+    /*private void Start()
+    {
+        MyEventSystem.instance.Set("Board", this);
+        MyEventSystem.instance.RegisterDynamicData("isMovementValid", this, isValidMovement);
+        MyEventSystem.instance.RegisterDynamicData("getBox",this,getBox);
+    }*/
+
+    dynamic getBox(int line, int column)
+    {
+        return chessboardBoxes[column][line];
     }
 
     //test if a movement is valid
-    bool isValidMovement(ChessPiece piece, int testedLine, int testedColumn)
+    dynamic isValidMovement(int originLine, int originColumn,int testedLine, int testedColumn)
     {
+        ChessboardBox testedBox = chessboardBoxes[testedColumn][testedLine];
+        ChessPiece movedPiece = chessboardBoxes[originColumn][originLine].piece;
+        ChessPiece takenPiece = testedBox.piece;
+        bool tryCastling = false;
         // the destination is out of the board
         if (testedLine < 0 || testedLine > 7 || testedColumn < 0 || testedColumn > 7) return false;
-        //castling case
 
-
-        return true;
-    }
-
-    void ShowValidMoves(string name, GenericDictionary args)
-    {
-        ChessPiece piece = args.Get("movedPiece");
-        int originLine = args.Get("originLine");
-        int originColumn = args.Get("originColumn");
-        //calculte coord to test
-        foreach (Vector2 direction in piece.directionsAndDestination.Keys)
+        if (takenPiece != null && takenPiece.team == movedPiece.team)
         {
-
-            if (piece.directionsAndDestination[direction] != null)
-            {
-
-            }
+            if(!takenPiece.canCastling || !movedPiece.canCastling) return false;
+            tryCastling = true;
         }
+
+        //copy the current state of board
+        Board simulation =  new Board(this);
+        //simulate the move
+        simulation.Move( originLine, originColumn, testedLine, testedColumn, tryCastling);
+        //simulate the move and check if the king is safe
+        return simulation.IsTheKingSafe(movedPiece.team);
     }
 
-    public void SetPieceOnBox(ChessPiece piece,int lineDestination, int columnDestination, TeamManager team)
-    {
-        ChessboardBox target = chessboardBoxes[lineDestination][columnDestination];
-        target.piece = piece;
-        piece.transform.position = target.transform.position;
-        piece.transform.position += Vector3.up * 0.125f;
-        piece.transform.localScale = new Vector3(pawnSize, piece.transform.localScale.y, pawnSize);
-        piece.team = team;
-        piece.pawnRenderer.material.color = team.pawnColor;
-        piece.iconRenderer.color = team.spriteColor;
-    }
-
-    public void Move(Vector2 origin, Vector2 destination)
+    public bool IsTheKingSafe(TeamManager playingTeam)
     {
 
-    }
 
-    //construct the board
-    public void ConstructBoard()
-    {
-        bool isWhite = true;
-        chessboardBoxes = new List<List<ChessboardBox>>();
-        for (int caseColumn = 0; caseColumn < 8; caseColumn++)
-        {
-            List<ChessboardBox> currentColumn = new List<ChessboardBox>();
-            for (int caseLine = 0; caseLine < 8; caseLine++)
-            {
-                Vector3 offset = new Vector3(caseSize*caseColumn,0f,caseSize*caseLine);
-                GameObject chessboardBox = Instantiate(casePrefab, boardOrigin+offset, Quaternion.identity,transform);
-                ChessboardBox box = chessboardBox.GetComponent<ChessboardBox>();
-                box.SetColor(isWhite ? whiteColor : blackColor);
-                box.SetSize(caseSize);
-                box.line = caseLine;
-                box.column = caseColumn;
-                currentColumn.Add(box);
-                isWhite = !isWhite;
-            }
-            chessboardBoxes.Add(currentColumn);
-            isWhite = !isWhite;
-        }
+        return false;
     }
 
     
+
+    public void Move(int originLine, int originColumn, int testedLine, int testedColumn, bool tryCastling = false)
+    {
+        //manage special case (castling/enPassant)
+        if (tryCastling)
+        {
+
+        }
+        //make the normal move
+        else
+        {
+
+        }
+    }
 }
