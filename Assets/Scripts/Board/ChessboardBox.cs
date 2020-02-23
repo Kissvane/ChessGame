@@ -2,14 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChessboardBox : MonoBehaviour
+public class ChessboardBoxData
 {
     public int line = 0;
     public int column = 0;
     public ChessPiece piece = null;
     public Color caseColor;
+
     public Renderer boxRenderer;
     public Transform boxTransform;
+
+    public ChessboardBoxData(Color caseColor, int line, int column, Renderer boxRenderer, Transform boxTransform)
+    {
+        this.caseColor = caseColor;
+        this.line = line;
+        this.column = column;
+        this.boxRenderer = boxRenderer;
+        this.boxTransform = boxTransform;
+
+        SetColor(caseColor);
+    }
 
     public void SetColor(Color color)
     {
@@ -22,7 +34,7 @@ public class ChessboardBox : MonoBehaviour
         boxTransform.localScale = new Vector3(size, boxTransform.localScale.y, size);
     }
 
-    public void OnMouseDown()
+    /*public void OnMouseDown()
     {
         //if the player is selecting the piece to move
         if (MyEventSystem.instance.Get("originMove") == null && piece != null)
@@ -44,5 +56,5 @@ public class ChessboardBox : MonoBehaviour
                 //do the move
             }
         }
-    }
+    }*/
 }

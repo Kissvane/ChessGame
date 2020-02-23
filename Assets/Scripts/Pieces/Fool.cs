@@ -11,12 +11,11 @@ public class Fool : ChessPiece
         moveDirectionsAndBlockedState.Add(new Vector2(1f, -1f), false);
         moveDirectionsAndBlockedState.Add(new Vector2(-1f, 1f), false);
         moveDirectionsAndBlockedState.Add(new Vector2(-1f, -1f), false);
-        /*allowedMoveDirections = new List<Vector2>
-        {
-            new Vector2(1f,1f),
-            new Vector2(1f,-1f),
-            new Vector2(-1f,1f),
-            new Vector2(-1f,-1f)
-        };*/
+    }
+
+    public override void Captured()
+    {
+        base.Captured();
+        team.fools.Remove(this);
     }
 }

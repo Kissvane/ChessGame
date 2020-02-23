@@ -92,7 +92,6 @@ GameObject:
   - component: {fileID: 7526983089343998358}
   - component: {fileID: 8790708083818258806}
   - component: {fileID: 1560910758776051498}
-  - component: {fileID: -6873860300867300543}
   m_Layer: 0
   m_Name: Pawn
   m_TagString: Untagged
@@ -175,21 +174,3 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-6873860300867300543
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1982603289976404085}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60541626d99cc1d488b40baa87a0792e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  possibleDestinations: []
-  team: {fileID: 0}
-  hasMoved: 0
-  pawnRenderer: {fileID: 8790708083818258806}
-  iconRenderer: {fileID: 8327430991568927444}
-  enPassantIsPossible: 0

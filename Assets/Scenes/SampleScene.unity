@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 649424951}
   - component: {fileID: 649424950}
   m_Layer: 0
-  m_Name: Board
+  m_Name: Constructor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -146,14 +146,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 649424949}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 507cc1e1060e76248984a814eb44ff37, type: 3}
+  m_Script: {fileID: 11500000, guid: 1bb2d87bd6871ca4cb4c6b7d19aeb9bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blackColor: {r: 0.6850303, g: 0.7632101, b: 0.8113208, a: 1}
-  whiteColor: {r: 0.8962264, g: 0.89199895, b: 0.89199895, a: 1}
+  blackColor: {r: 0.41985583, g: 0.65581095, b: 0.8018868, a: 1}
+  whiteColor: {r: 0.73550105, g: 0.7735849, b: 0.5218049, a: 1}
   boardOrigin: {x: 0, y: 0, z: 0}
   caseSize: 0.5
-  pawnSize: 0.4
+  pawnSize: 0.5
   casePrefab: {fileID: 751128755825334292, guid: 2dc8d8db93ba58d4cad7cf58bf6226e8,
     type: 3}
   KingPfb: {fileID: 6861673290962793644, guid: ca6975dfb6b47294cb12b0ab141d6f00, type: 3}
@@ -353,53 +353,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
---- !u!1 &975017574
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 975017576}
-  - component: {fileID: 975017575}
-  m_Layer: 0
-  m_Name: BlackTeam
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &975017575
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 975017574}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43a0af7e21204484e97bf280f98d8c0d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamEnum: 1
-  pawnColor: {r: 0, g: 0, b: 0, a: 1}
-  spriteColor: {r: 0.8018868, g: 0.8018868, b: 0.8018868, a: 1}
-  capturedSpot: []
---- !u!4 &975017576
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 975017574}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1442694870
 GameObject:
   m_ObjectHideFlags: 0
@@ -431,9 +384,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c91490dc2801434d8256acdfe3c12ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  board: {fileID: 649424950}
-  whiteTeam: {fileID: 1607373178}
-  blackTeam: {fileID: 975017575}
+  constructor: {fileID: 649424950}
+  colors:
+  - {r: 0.49461553, g: 0.784638, b: 0.8962264, a: 1}
+  - {r: 0.46226418, g: 0.41647387, b: 0.41647387, a: 1}
+  - {r: 0.8018868, g: 0.72278774, b: 0.3215112, a: 1}
+  - {r: 0.4627451, g: 0.41568628, b: 0.41568628, a: 1}
+  whiteIsPlaying: 1
 --- !u!4 &1442694872
 Transform:
   m_ObjectHideFlags: 0
@@ -537,51 +494,4 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1607373177
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1607373179}
-  - component: {fileID: 1607373178}
-  m_Layer: 0
-  m_Name: WhiteTeam
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1607373178
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1607373177}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43a0af7e21204484e97bf280f98d8c0d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamEnum: 0
-  pawnColor: {r: 1, g: 1, b: 1, a: 1}
-  spriteColor: {r: 0.4528302, g: 0.4528302, b: 0.4528302, a: 1}
-  capturedSpot: []
---- !u!4 &1607373179
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1607373177}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

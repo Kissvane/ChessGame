@@ -16,4 +16,10 @@ public class Knight : ChessPiece
         moveDirectionsAndBlockedState.Add(new Vector2(-1f, -2f), false);
         moveDirectionsAndBlockedState.Add(new Vector2(-2f, -1f), false);
     }
+
+    public override void Captured()
+    {
+        base.Captured();
+        team.knights.Remove(this);
+    }
 }

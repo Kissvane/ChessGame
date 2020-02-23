@@ -18,23 +18,22 @@ public class BoardConstructor : MonoBehaviour
     public GameObject PawnPfb;
     public GameObject KnightPfb;
 
+    Board board;
+
     //construct the board
     public void ConstructBoard()
     {
         bool isWhite = true;
-        List<List<ChessboardBox>> chessboardBoxes = new List<List<ChessboardBox>>();
+        List<List<ChessboardBoxData>> chessboardBoxes = new List<List<ChessboardBoxData>>();
         for (int caseColumn = 0; caseColumn < 8; caseColumn++)
         {
-            List<ChessboardBox> currentColumn = new List<ChessboardBox>();
+            List<ChessboardBoxData> currentColumn = new List<ChessboardBoxData>();
             for (int caseLine = 0; caseLine < 8; caseLine++)
             {
                 Vector3 offset = new Vector3(caseSize * caseColumn, 0f, caseSize * caseLine);
                 GameObject chessboardBox = Instantiate(casePrefab, boardOrigin + offset, Quaternion.identity, transform);
-                ChessboardBox box = chessboardBox.GetComponent<ChessboardBox>();
+                ChessboardBoxData box = new ChessboardBoxData(isWhite ? whiteColor : blackColor, caseLine, caseColumn, chessboardBox.GetComponent<Renderer>(),chessboardBox.transform);
                 box.SetColor(isWhite ? whiteColor : blackColor);
-                box.SetSize(caseSize);
-                box.line = caseLine;
-                box.column = caseColumn;
                 currentColumn.Add(box);
                 isWhite = !isWhite;
             }
@@ -42,22 +41,53 @@ public class BoardConstructor : MonoBehaviour
             isWhite = !isWhite;
         }
 
-        //send an event with chessboardBoxes
+        board = new Board(chessboardBoxes);
+        MyEventSystem.instance.Set("Board",board);
     }
 
-    public void SetPieceOnBox(ChessPiece piece, int lineDestination, int columnDestination, TeamManager team)
+    //position a piece on the board
+    public void SetPieceOnBox(ChessPiece piece, int lineDestination, int columnDestination, TeamManager team, string pieceType)
     {
-        GenericDictionary data = new GenericDictionary()
-            .Set("lineDestination", lineDestination)
-            .Set("columnDestination", columnDestination);
+        //get the chessboard box
+        ChessboardBoxData target = board.getBox(columnDestination,lineDestination); 
 
-        ChessboardBox target = MyEventSystem.instance.Get("ChessboardBox", data);
+        //assign a piece to the targeted chessboard box
         target.piece = piece;
-        piece.transform.position = target.transform.position;
-        piece.transform.position += Vector3.up * 0.125f;
-        piece.transform.localScale = new Vector3(pawnSize, piece.transform.localScale.y, pawnSize);
+        //create the piece in 3D
+        GameObject toInstantiate = null;
+        switch (pieceType)
+        {
+            case "K":
+                toInstantiate = KingPfb;
+                break;
+            case "Q":
+                toInstantiate = QueenPfb;
+                break;
+            case "KN":
+                toInstantiate = KnightPfb;
+                break;
+            case "F":
+                toInstantiate = FoolPfb;
+                break;
+            case "T":
+                toInstantiate = TowerPfb;
+                break;
+            default:
+                toInstantiate = PawnPfb;
+                break;
+        }
+
+        GameObject instantiated = Instantiate(toInstantiate, target.boxTransform.position, Quaternion.identity, transform);
+        instantiated.transform.position += Vector3.up * 0.125f;
+        instantiated.transform.localScale = new Vector3(pawnSize, instantiated.transform.localScale.y, pawnSize);
+
+        //assign the piece team
         piece.team = team;
         piece.pawnRenderer.material.color = team.pawnColor;
         piece.iconRenderer.color = team.spriteColor;
+        piece.currentPosition = new Vector2(columnDestination, lineDestination);
+
+        //add the piece in team piece's list
+        team.piecesObjects.Add(piece,instantiated);
     }
 }

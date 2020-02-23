@@ -8,14 +8,39 @@ public enum Team
     Black = 1,
 }
 
-public class TeamManager : MonoBehaviour
+public class TeamManager
 {
+    public TeamManager other;
     public Team teamEnum;
     public Color pawnColor;
     public Color spriteColor;
-    public List<Transform> capturedSpot; 
+    public Dictionary<ChessPiece, GameObject> capturedPieces =  new Dictionary<ChessPiece, GameObject>();
+    //public List<ChessPiece> pieces;
+    public King king;
+    public List<Pawn> pawns = new List<Pawn>();
+    public List<Queen> queens = new List<Queen>();
+    public List<Knight> knights = new List<Knight>();
+    public List<Fool> fools = new List<Fool>();
+    public List<Tower> towers = new List<Tower>();
+    public Dictionary<ChessPiece, GameObject> piecesObjects = new Dictionary<ChessPiece, GameObject>();
 
-    public void positionTeam(Board board)
+    public TeamManager(string team, Color pawnColor, Color spriteColor)
+    {
+        if (team == "white")
+        {
+            this.pawnColor = pawnColor;
+            this.spriteColor = spriteColor;
+        }
+    }
+
+    public void Capture(ChessPiece piece, GameObject captured)
+    {
+        capturedPieces.Add(piece, captured);
+        //TODO physical case
+    }
+
+    //instantiate and set the pieces
+    public void positionTeam(BoardConstructor constructor)
     {
         int KingLine = -1;
         int PawnLine = -1;
@@ -33,47 +58,43 @@ public class TeamManager : MonoBehaviour
 
         int KingColumn = 4;
 
-        GameObject kingObject = Instantiate(board.KingPfb,transform);
-        ChessPiece King = kingObject.GetComponent<ChessPiece>();
-        board.SetPieceOnBox(King, KingLine, KingColumn,this);
+        king = new King();
+        constructor.SetPieceOnBox(king, KingLine, KingColumn,this, "K");
 
-        GameObject queenObject = Instantiate(board.QueenPfb, transform);
-        ChessPiece queen = queenObject.GetComponent<ChessPiece>();
-        board.SetPieceOnBox(queen, KingLine, KingColumn - 1, this);
+        Queen queen = new Queen();
+        queens.Add(queen);
+        constructor.SetPieceOnBox(queen, KingLine, KingColumn - 1, this, "Q");
 
-        GameObject foolObject = Instantiate(board.FoolPfb, transform);
-        ChessPiece fool = foolObject.GetComponent<ChessPiece>();
-        board.SetPieceOnBox(fool, KingLine, KingColumn - 2, this);
+        Fool fool = new Fool();
+        fools.Add(fool);
+        constructor.SetPieceOnBox(fool, KingLine, KingColumn - 2, this,"F");
 
-        GameObject foolObject2 = Instantiate(board.FoolPfb, transform);
-        ChessPiece fool2 = foolObject2.GetComponent<ChessPiece>();
-        board.SetPieceOnBox(fool2, KingLine, KingColumn + 1, this);
+        Fool fool2 = new Fool();
+        fools.Add(fool2);
+        constructor.SetPieceOnBox(fool2, KingLine, KingColumn + 1, this,"F");
 
-        GameObject knightObject = Instantiate(board.KnightPfb, transform);
-        ChessPiece knight = knightObject.GetComponent<ChessPiece>();
-        board.SetPieceOnBox(knight, KingLine, KingColumn - 3, this);
+        Knight knight = new Knight();
+        knights.Add(knight);
+        constructor.SetPieceOnBox(knight, KingLine, KingColumn - 3, this,"KN");
 
-        GameObject knightObject2 = Instantiate(board.KnightPfb, transform);
-        ChessPiece knight2 = knightObject2.GetComponent<ChessPiece>();
-        board.SetPieceOnBox(knight2, KingLine, KingColumn + 2, this);
+        Knight knight2 = new Knight();
+        knights.Add(knight2);
+        constructor.SetPieceOnBox(knight2, KingLine, KingColumn + 2, this,"KN");
 
-        GameObject towerObject = Instantiate(board.TowerPfb, transform);
-        ChessPiece tower = towerObject.GetComponent<ChessPiece>();
-        board.SetPieceOnBox(tower, KingLine, KingColumn - 4, this);
+        Tower tower = new Tower();
+        towers.Add(tower);
+        constructor.SetPieceOnBox(tower, KingLine, KingColumn - 4, this,"T");
 
-        GameObject towerObject2 = Instantiate(board.TowerPfb, transform);
-        ChessPiece tower2 = towerObject2.GetComponent<ChessPiece>();
-        board.SetPieceOnBox(tower2, KingLine, KingColumn + 3, this);
+        Tower tower2 = new Tower();
+        towers.Add((Tower)tower2);
+        constructor.SetPieceOnBox(tower2, KingLine, KingColumn + 3, this,"T");
 
-        GameObject pawnObject = null;
-        ChessPiece pawn = null;
+        Pawn pawn = null;
         for (int i = 0; i < 8; i++)
         {
-            pawnObject = Instantiate(board.PawnPfb, transform);
-            pawn = pawnObject.GetComponent<ChessPiece>();
-            board.SetPieceOnBox(pawn, PawnLine, i, this);
+            pawn = new Pawn();
+            pawns.Add(pawn);
+            constructor.SetPieceOnBox(pawn, PawnLine, i, this,"P");
         }
     }
-
-
 }

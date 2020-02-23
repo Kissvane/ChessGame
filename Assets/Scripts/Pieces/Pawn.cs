@@ -8,6 +8,7 @@ public class Pawn : ChessPiece
 
     public override void SetMovementLimit()
     {
+        isPawn = true;
         maxRange = 2;
         moveDirectionsAndBlockedState = new Dictionary<Vector2, bool>();
         moveDirectionsAndBlockedState.Add(team.teamEnum == Team.White ? Vector2.up : Vector2.down, false);
@@ -30,5 +31,11 @@ public class Pawn : ChessPiece
             enPassantAllowed = false;
         }
         base.Moved(origin, destination);
+    }
+
+    public override void Captured()
+    {
+        base.Captured();
+        team.pawns.Remove(this);
     }
 }
