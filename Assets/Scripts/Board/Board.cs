@@ -26,7 +26,7 @@ public class Board
     }
 
     //test if a movement is valid
-    public bool isValidMovement(int originLine, int originColumn,int testedLine, int testedColumn, bool checkKingSafety = true)
+    /*public bool isValidMovement(int originLine, int originColumn,int testedLine, int testedColumn, bool checkKingSafety = true)
     {
         ChessboardBoxData testedBox = boxesDatas[testedColumn][testedLine];
         ChessPiece movedPiece = boxesDatas[originColumn][originLine].piece;
@@ -54,7 +54,7 @@ public class Board
         {
             return true;
         }
-    }
+    }*/
 
     public bool IsMyKingSafe(TeamManager playingTeam)
     {
@@ -69,7 +69,7 @@ public class Board
         return true;
     }
 
-    public void Move(int originLine, int originColumn, int testedLine, int testedColumn, bool tryCastling = false)
+    /*public void Move(int originLine, int originColumn, int testedLine, int testedColumn, bool tryCastling = false)
     {
         ChessboardBoxData origin = getBox(originColumn, originLine);
         ChessboardBoxData destination = getBox(testedColumn, testedLine);
@@ -91,5 +91,5 @@ public class Board
             }
         }
         movedPiece.Moved(new Vector2(originColumn, originLine), new Vector2(testedColumn, testedLine));
-    }
+    }*/
 }

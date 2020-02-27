@@ -32,7 +32,7 @@ public abstract class ChessPiece
                 //if this direction is not blocked
                 if (!moveDirectionsAndBlockedState[direction])
                 {
-                    if (board.isValidMovement(originLine,originColumn,(int)direction.y*i,(int)direction.x*i,isSimulation))
+                    if (isValidMovement(board, (int)direction.y*i, (int)direction.x*i, isSimulation))
                     {
                         availableDestinations.Add(new Vector2(originColumn, originLine)+direction*i);
                     }
@@ -44,6 +44,64 @@ public abstract class ChessPiece
                 }
             }
         }
+    }
+
+    //test if a movement is valid
+    public virtual bool isValidMovement(Board board, int testedLine, int testedColumn, bool checkKingSafety = true)
+    {
+        int originColumn = (int)currentPosition.x;
+        int originLine = (int)currentPosition.y;
+        ChessboardBoxData testedBox = board.boxesDatas[testedColumn][testedLine];
+        ChessPiece movedPiece = board.boxesDatas[originColumn][originLine].piece;
+        ChessPiece takenPiece = testedBox.piece;
+        bool tryCastling = false;
+        // the destination is out of the board
+        if (testedLine < 0 || testedLine > 7 || testedColumn < 0 || testedColumn > 7) return false;
+
+        //KING ONLY
+        if (takenPiece != null && takenPiece.team == movedPiece.team)
+        {
+            if (!takenPiece.canCastling || !movedPiece.canCastling) return false;
+            tryCastling = true;
+        }
+
+        if (checkKingSafety)
+        {
+            //copy the current state of board
+            Board simulation = new Board(board);
+            //simulate the move
+            Move(simulation,originLine, originColumn, testedLine, testedColumn, tryCastling);
+            //simulate the move and check if the king is safe
+            return simulation.IsMyKingSafe(movedPiece.team);
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    public virtual void Move(Board board, int originLine, int originColumn, int testedLine, int testedColumn, bool tryCastling = false)
+    {
+        ChessboardBoxData origin = board.getBox(originColumn, originLine);
+        ChessboardBoxData destination = board.getBox(testedColumn, testedLine);
+        ChessPiece movedPiece = origin.piece;
+        ChessPiece otherPiece = destination.piece;
+        //manage special case (castling/enPassant)
+        if (tryCastling)
+        {
+            origin.piece = otherPiece;
+            destination.piece = movedPiece;
+            otherPiece.Moved(new Vector2(testedColumn, testedLine), new Vector2(originColumn, originLine));
+        }
+        //make the normal move
+        else
+        {
+            if (otherPiece != null)
+            {
+                otherPiece.Captured();
+            }
+        }
+        movedPiece.Moved(new Vector2(originColumn, originLine), new Vector2(testedColumn, testedLine));
     }
 
     public void ResetBlockedDirections()
