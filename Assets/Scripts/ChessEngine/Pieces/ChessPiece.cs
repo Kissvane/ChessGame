@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public abstract class ChessPiece
 {
     public Dictionary<Vector2,bool> moveDirectionsAndBlockedState = new Dictionary<Vector2, bool>();
@@ -10,11 +11,12 @@ public abstract class ChessPiece
     public List<Vector2> availableDestinations;
     public TeamManager team;
     public bool hasMoved = false;
-    public Renderer pawnRenderer;
-    public SpriteRenderer iconRenderer;
+    //public Renderer pawnRenderer;
+    //public SpriteRenderer iconRenderer;
     public bool canCastling = false;
     public bool isKing = false;
     public bool isPawn = false;
+    public bool enPassantAllowed = false;
     //when i use vector2 to represent positions on the board x is the column and y the line
     public Vector2 currentPosition;
 
@@ -22,7 +24,6 @@ public abstract class ChessPiece
     {
         ResetBlockedDirections();
         availableDestinations.Clear();
-        Board board = MyEventSystem.instance.Get("Board");
         int originLine = (int)currentPosition.y;
         int originColumn = (int)currentPosition.x;
         for (int i = 1; i <= maxRange; i++)
@@ -32,7 +33,7 @@ public abstract class ChessPiece
                 //if this direction is not blocked
                 if (!moveDirectionsAndBlockedState[direction])
                 {
-                    if (isValidMovement(board, (int)direction.y*i, (int)direction.x*i, isSimulation))
+                    if (isValidMovement(ChessEngine.instance.board, (int)direction.y*i, (int)direction.x*i, isSimulation))
                     {
                         availableDestinations.Add(new Vector2(originColumn, originLine)+direction*i);
                     }
@@ -49,20 +50,15 @@ public abstract class ChessPiece
     //test if a movement is valid
     public virtual bool isValidMovement(Board board, int testedLine, int testedColumn, bool checkKingSafety = true)
     {
-        int originColumn = (int)currentPosition.x;
-        int originLine = (int)currentPosition.y;
         ChessboardBoxData testedBox = board.boxesDatas[testedColumn][testedLine];
-        ChessPiece movedPiece = board.boxesDatas[originColumn][originLine].piece;
         ChessPiece takenPiece = testedBox.piece;
-        bool tryCastling = false;
         // the destination is out of the board
         if (testedLine < 0 || testedLine > 7 || testedColumn < 0 || testedColumn > 7) return false;
 
-        //KING ONLY
-        if (takenPiece != null && takenPiece.team == movedPiece.team)
+        //the box contains a friend piece movement is not valid
+        if (takenPiece != null && takenPiece.team == team)
         {
-            if (!takenPiece.canCastling || !movedPiece.canCastling) return false;
-            tryCastling = true;
+            return false;
         }
 
         if (checkKingSafety)
@@ -70,9 +66,9 @@ public abstract class ChessPiece
             //copy the current state of board
             Board simulation = new Board(board);
             //simulate the move
-            Move(simulation,originLine, originColumn, testedLine, testedColumn, tryCastling);
+            Move(simulation, (int)currentPosition.y, (int)currentPosition.x, testedLine, testedColumn);
             //simulate the move and check if the king is safe
-            return simulation.IsMyKingSafe(movedPiece.team);
+            return simulation.IsMyKingSafe(team);
         }
         else
         {
@@ -80,31 +76,22 @@ public abstract class ChessPiece
         }
     }
 
-    public virtual void Move(Board board, int originLine, int originColumn, int testedLine, int testedColumn, bool tryCastling = false)
+    public virtual void Move(Board board, int originLine, int originColumn, int testedLine, int testedColumn)
     {
         ChessboardBoxData origin = board.getBox(originColumn, originLine);
         ChessboardBoxData destination = board.getBox(testedColumn, testedLine);
         ChessPiece movedPiece = origin.piece;
         ChessPiece otherPiece = destination.piece;
-        //manage special case (castling/enPassant)
-        if (tryCastling)
+ 
+        if (otherPiece != null)
         {
-            origin.piece = otherPiece;
-            destination.piece = movedPiece;
-            otherPiece.Moved(new Vector2(testedColumn, testedLine), new Vector2(originColumn, originLine));
+            otherPiece.Captured();
         }
-        //make the normal move
-        else
-        {
-            if (otherPiece != null)
-            {
-                otherPiece.Captured();
-            }
-        }
+
         movedPiece.Moved(new Vector2(originColumn, originLine), new Vector2(testedColumn, testedLine));
     }
 
-    public void ResetBlockedDirections()
+    public virtual void ResetBlockedDirections()
     {
         foreach (Vector2 direction in moveDirectionsAndBlockedState.Keys)
         {
@@ -122,7 +109,6 @@ public abstract class ChessPiece
     {
         GameObject captured = team.piecesObjects[this];
         team.other.Capture(this, captured);
-        MyEventSystem.instance.FireEvent("Captured",new GenericDictionary().Set("pieceObject",captured));
         team.piecesObjects.Remove(this);
     }
 

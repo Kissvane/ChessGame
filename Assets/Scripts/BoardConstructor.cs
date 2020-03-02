@@ -21,7 +21,7 @@ public class BoardConstructor : MonoBehaviour
     Board board;
 
     //construct the board
-    public void ConstructBoard()
+    /*public void ConstructBoard()
     {
         bool isWhite = true;
         List<List<ChessboardBoxData>> chessboardBoxes = new List<List<ChessboardBoxData>>();
@@ -42,11 +42,11 @@ public class BoardConstructor : MonoBehaviour
         }
 
         board = new Board(chessboardBoxes);
-        MyEventSystem.instance.Set("Board",board);
-    }
+        Linker.instance.board = board;
+    }*/
 
     //position a piece on the board
-    public void SetPieceOnBox(ChessPiece piece, int lineDestination, int columnDestination, TeamManager team, string pieceType)
+    /*public void SetPieceOnBox(ChessPiece piece, int lineDestination, int columnDestination, TeamManager team, string pieceType)
     {
         //get the chessboard box
         ChessboardBoxData target = board.getBox(columnDestination,lineDestination); 
@@ -83,11 +83,8 @@ public class BoardConstructor : MonoBehaviour
 
         //assign the piece team
         piece.team = team;
-        piece.pawnRenderer.material.color = team.pawnColor;
-        piece.iconRenderer.color = team.spriteColor;
         piece.currentPosition = new Vector2(columnDestination, lineDestination);
-
         //add the piece in team piece's list
         team.piecesObjects.Add(piece,instantiated);
-    }
+    }*/
 }

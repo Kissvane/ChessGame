@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class GameManager : MonoBehaviour
 {
     public BoardConstructor constructor;
-    public Board board;
     public TeamManager whiteTeam;
     public TeamManager blackTeam;
 
@@ -13,23 +13,22 @@ public class GameManager : MonoBehaviour
 
     public bool whiteIsPlaying = true;
 
+    public Vector2 originMove;
+    public Vector2 destinationMove;
+
     public void Start()
     {
-        whiteTeam = new TeamManager("white", constructor.whiteColor, constructor.blackColor);
-        blackTeam = new TeamManager("black", constructor.blackColor, constructor.whiteColor);
-        constructor.ConstructBoard();
-        board = MyEventSystem.instance.Get("Board");
-        whiteTeam.positionTeam(constructor);
-        blackTeam.positionTeam(constructor);
-        MyEventSystem.instance.Set("whiteIsPlaying", whiteIsPlaying);
+        //whiteTeam = new TeamManager(ChessColor.White, constructor.whiteColor, constructor.blackColor);
+        //blackTeam = new TeamManager(ChessColor.Black, constructor.blackColor, constructor.whiteColor);
+        //constructor.ConstructBoard();
+        //whiteTeam.positionTeam(constructor);
+        //blackTeam.positionTeam(constructor);
     }
 
     public void NextTurn()
     {
         whiteIsPlaying = !whiteIsPlaying;
-        MyEventSystem.instance.Set("originMove", null);
-        MyEventSystem.instance.Set("destinationMove",null);
-        MyEventSystem.instance.Set("whiteIsPlaying", whiteIsPlaying);
+
         bool hasValidMove = false;
         TeamManager playingTeam = whiteIsPlaying ? whiteTeam : blackTeam;
         foreach (ChessPiece piece in playingTeam.piecesObjects.Keys)
