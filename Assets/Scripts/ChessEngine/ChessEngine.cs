@@ -9,15 +9,32 @@ using UnityEngine;
 public class ChessEngine
 {
     #region variables
-    public bool whiteIsPlaying = true;
+    //public bool whiteIsPlaying = true;
     public TeamManager whiteTeam;
     public TeamManager blackTeam;
+    public TeamManager whoIsPlaying;
     public Board board;
+    public List<ChessPiece> movedDuringThisTurn = new List<ChessPiece>();
+    public ChessPiece capturedDuringThisTurn = null;
+    public GameObject capturedDuringThisTurnGameobject = null;
+    public Pawn waitingPromotion = null;
+    public TeamManager winningTeam = null;
+
     #endregion
 
     #region singleton
     static ChessEngine _instance;
-    public static ChessEngine instance { get { return _instance; } }
+    public static ChessEngine instance
+    { get
+        {
+            if (_instance == null)
+            {
+                _instance = new ChessEngine();
+            }
+            return _instance;
+        }
+    }
+
     ChessEngine()
     {
         _instance = this;
@@ -28,11 +45,22 @@ public class ChessEngine
 
     public void StartAGame()
     {
+        movedDuringThisTurn = new List<ChessPiece>();
+        capturedDuringThisTurn = null;
+        waitingPromotion = null;
+        winningTeam = null;
+
         board = ConstructBoard();
+        //team initialization
         whiteTeam = new TeamManager(ChessColor.White);
         blackTeam = new TeamManager(ChessColor.Black);
+        whiteTeam.other = blackTeam;
+        blackTeam.other = whiteTeam;
         positionTeam(whiteTeam);
         positionTeam(blackTeam);
+        //round initialization
+        whoIsPlaying = whiteTeam;
+        CalculateAvaibleMoves();
     }
 
     Board ConstructBoard()
@@ -57,7 +85,7 @@ public class ChessEngine
     }
 
     //create and position the pieces
-    public void positionTeam(TeamManager team)
+    void positionTeam(TeamManager team)
     {
         int KingLine = -1;
         int PawnLine = -1;
@@ -121,9 +149,83 @@ public class ChessEngine
 
     public void Move(int originLine, int originColumn, int destinationLine, int destinationColumn)
     {
-        throw new NotImplementedException();
+        ChessPiece pieceToMove = board.getBox(originColumn, originLine).piece;
+        if (whoIsPlaying.piecesObjects.ContainsKey(pieceToMove))
+        {
+            pieceToMove.Move(board, originLine, originColumn, destinationLine, destinationColumn);
+        }
     }
 
+    public void StartNextTurn()
+    {
+        ResetMoveLists();
+        whoIsPlaying = whoIsPlaying.other;
+        bool hasValidMove = CalculateAvaibleMoves();
+
+        if (!hasValidMove)
+        {
+            winningTeam = whoIsPlaying.other;  
+        }
+    }
+
+    bool CalculateAvaibleMoves()
+    {
+        bool hasValidMove = false;
+        foreach (ChessPiece piece in whoIsPlaying.piecesObjects.Keys)
+        {
+            piece.CalculateAvailableDestinations();
+            if (piece.availableDestinations.Count > 0)
+            {
+                hasValidMove = true;
+            }
+        }
+        //reset enPassant for Pawns
+        foreach(Pawn pawn in whoIsPlaying.pawns)
+        {
+            pawn.enPassantAllowed = false;
+        }
+
+        return hasValidMove;
+    }
+
+    public void Promote(PieceType type)
+    {
+        board.PromotePawn(waitingPromotion.currentPosition,type);
+    }
+
+    void ResetMoveLists()
+    {
+        movedDuringThisTurn.Clear();
+        capturedDuringThisTurn = null;
+        capturedDuringThisTurnGameobject = null;
+        waitingPromotion = null;
+        winningTeam = null;
+    }
     #endregion
 
+    public ChessPiece GetPieceAtPosition(int column, int line)
+    {
+        return board.getBox(column, line).piece;
+    }
+
+    public bool IsValidCoordinate(Vector2 position)
+    {
+        return position.x < 8 && position.x >= 0 && position.y < 8 && position.y >= 0;
+    }
+
+    public bool IsValidCoordinate(int column, int line)
+    {
+        return column < 8 && column >= 0 && line < 8 && line >= 0;
+    }
+
+}
+
+public enum PieceType
+{
+    King,
+    Queen,
+    Knight,
+    Tower,
+    Fool,
+    Pawn
 }

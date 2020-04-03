@@ -8,7 +8,7 @@ public abstract class ChessPiece
     public Dictionary<Vector2,bool> moveDirectionsAndBlockedState = new Dictionary<Vector2, bool>();
     //protected List<Vector2> allowedMoveDirections;
     public int maxRange = 0;
-    public List<Vector2> availableDestinations;
+    public List<Vector2> availableDestinations = new List<Vector2>();
     public TeamManager team;
     public bool hasMoved = false;
     //public Renderer pawnRenderer;
@@ -26,16 +26,26 @@ public abstract class ChessPiece
         availableDestinations.Clear();
         int originLine = (int)currentPosition.y;
         int originColumn = (int)currentPosition.x;
+        List<Vector2> temp = new List<Vector2>();
+        temp.AddRange(moveDirectionsAndBlockedState.Keys);
+
         for (int i = 1; i <= maxRange; i++)
         {
-            foreach (Vector2 direction in moveDirectionsAndBlockedState.Keys)
+            foreach (Vector2 direction in temp)
             {
+                Vector2 destinationToTest = new Vector2(originColumn, originLine) + direction * i;
                 //if this direction is not blocked
                 if (!moveDirectionsAndBlockedState[direction])
                 {
-                    if (isValidMovement(ChessEngine.instance.board, (int)direction.y*i, (int)direction.x*i, isSimulation))
+                    bool pieceTaken = false;
+                    if (isValidMovement(ChessEngine.instance.board, (int)destinationToTest.x, (int)destinationToTest.y, out pieceTaken,isSimulation))
                     {
                         availableDestinations.Add(new Vector2(originColumn, originLine)+direction*i);
+                        if (pieceTaken)
+                        {
+                            //for this calculation turn this direction is blocked
+                            moveDirectionsAndBlockedState[direction] = true;
+                        }
                     }
                     else
                     {
@@ -48,17 +58,20 @@ public abstract class ChessPiece
     }
 
     //test if a movement is valid
-    public virtual bool isValidMovement(Board board, int testedLine, int testedColumn, bool checkKingSafety = true)
+    public virtual bool isValidMovement(Board board, int testedColumn, int testedLine, out bool pieceTaken,bool checkKingSafety = true)
     {
-        ChessboardBoxData testedBox = board.boxesDatas[testedColumn][testedLine];
-        ChessPiece takenPiece = testedBox.piece;
+        pieceTaken = false;
         // the destination is out of the board
         if (testedLine < 0 || testedLine > 7 || testedColumn < 0 || testedColumn > 7) return false;
 
+        ChessboardBoxData testedBox = board.boxesDatas[testedColumn][testedLine];
+        ChessPiece takenPiece = testedBox.piece;
+        
         //the box contains a friend piece movement is not valid
-        if (takenPiece != null && takenPiece.team == team)
+        if (takenPiece != null)
         {
-            return false;
+            pieceTaken = true;
+            if (takenPiece.team == team) return false;
         }
 
         if (checkKingSafety)
@@ -88,12 +101,18 @@ public abstract class ChessPiece
             otherPiece.Captured();
         }
 
+        origin.piece = null;
+        destination.piece = movedPiece;
+
         movedPiece.Moved(new Vector2(originColumn, originLine), new Vector2(testedColumn, testedLine));
     }
 
     public virtual void ResetBlockedDirections()
     {
-        foreach (Vector2 direction in moveDirectionsAndBlockedState.Keys)
+        List<Vector2> temp = new List<Vector2>();
+        temp.AddRange(moveDirectionsAndBlockedState.Keys);
+
+        foreach (Vector2 direction in temp)
         {
             moveDirectionsAndBlockedState[direction] = false;
         }
@@ -103,12 +122,15 @@ public abstract class ChessPiece
     {
         hasMoved = true;
         currentPosition = destination;
+        ChessEngine.instance.movedDuringThisTurn.Add(this);
     }
 
     public virtual void Captured()
     {
         GameObject captured = team.piecesObjects[this];
         team.other.Capture(this, captured);
+        ChessEngine.instance.capturedDuringThisTurn = this;
+        ChessEngine.instance.capturedDuringThisTurnGameobject = captured;
         team.piecesObjects.Remove(this);
     }
 

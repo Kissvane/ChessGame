@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4929774496353566504}
   - component: {fileID: 589332268929706408}
   - component: {fileID: 1466579450269810145}
-  - component: {fileID: 370678732257764594}
+  - component: {fileID: 7752592332590513410}
   m_Layer: 0
   m_Name: ChessboardBox
   m_TagString: Untagged
@@ -28,7 +28,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 751128755825334292}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.329, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 0.2, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -93,7 +93,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &370678732257764594
+--- !u!114 &7752592332590513410
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -102,12 +102,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 751128755825334292}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9b3ef369018e03479a03f868b49c140, type: 3}
+  m_Script: {fileID: 11500000, guid: b269fa22c00a2e046a268fc81254a0fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  line: 0
-  column: 0
-  piece: {fileID: 0}
-  caseColor: {r: 0, g: 0, b: 0, a: 0}
-  boxRenderer: {fileID: 589332268929706408}
-  boxTransform: {fileID: 5339558067421070691}
+  position: {x: 0, y: 0}
+  myCollider: {fileID: 1466579450269810145}
+  myRenderer: {fileID: 589332268929706408}
+  isWhite: 0

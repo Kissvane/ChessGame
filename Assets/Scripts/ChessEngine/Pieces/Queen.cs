@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class Queen : ChessPiece
 {
     public override void SetMovementLimit()

@@ -5,50 +5,107 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public BoardConstructor constructor;
-    public TeamManager whiteTeam;
-    public TeamManager blackTeam;
-
-    public List<Color> colors;
-
-    public bool whiteIsPlaying = true;
-
-    public Vector2 originMove;
-    public Vector2 destinationMove;
-
+    //x for column and y for line
+    public Vector2 originMove = new Vector2(-1,-1);
+    //public Vector2 destinationMove = new Vector2(-1, -1);
+    public ChessPiece movingPiece = null;
+    public List<Vector2> selectedAvailableMoves;
+    #region UnityMethods
     public void Start()
     {
-        //whiteTeam = new TeamManager(ChessColor.White, constructor.whiteColor, constructor.blackColor);
-        //blackTeam = new TeamManager(ChessColor.Black, constructor.blackColor, constructor.whiteColor);
-        //constructor.ConstructBoard();
-        //whiteTeam.positionTeam(constructor);
-        //blackTeam.positionTeam(constructor);
+        StartGame();
+    }
+    #endregion
+
+    #region Logic
+    public void StartGame()
+    {
+        ChessEngine.instance.StartAGame();
+        Linker.instance.physicalBoardManager.ConstructPhysicalBoard();
+    }
+
+    public void SelectPieceToMove(Vector2 selected)
+    {
+        originMove = selected;
+        movingPiece = ChessEngine.instance.GetPieceAtPosition((int)originMove.x, (int)originMove.y);
+        selectedAvailableMoves = movingPiece.availableDestinations;
+        Linker.instance.physicalBoardManager.UpdateCollidersForThisTurn();
+        Linker.instance.physicalBoardManager.EnablePossibleMoveColliders(movingPiece);
+    }
+
+    public void MakeAMove(Vector2 destination)
+    {
+        ChessEngine.instance.Move((int)originMove.y, (int)originMove.x, (int)destination.y, (int)destination.x);
+        MovePhysicalPiece();
+        CapturePhysicalPiece();
+
+        if (ChessEngine.instance.waitingPromotion != null)
+        {
+            PromotionChoice();
+            return;
+        }
+
+        NextTurn();
     }
 
     public void NextTurn()
     {
-        whiteIsPlaying = !whiteIsPlaying;
-
-        bool hasValidMove = false;
-        TeamManager playingTeam = whiteIsPlaying ? whiteTeam : blackTeam;
-        foreach (ChessPiece piece in playingTeam.piecesObjects.Keys)
+        ChessEngine.instance.StartNextTurn();
+        //show winner if necessary
+        if (ChessEngine.instance.winningTeam != null)
         {
-            piece.CalculateAvailableDestinations();
-            if (piece.availableDestinations.Count > 0)
-            {
-                hasValidMove = true;
-            }
+            ShowWinner(ChessEngine.instance.winningTeam);
+            return;
         }
 
-        if (!hasValidMove)
-        {
-            ShowWinner(playingTeam.other);
-        }
+        WaitForInputs();
     }
 
-    public void ShowWinner(TeamManager winningTeam)
+    void WaitForInputs()
+    {
+        originMove = new Vector2(-1, -1);
+        movingPiece = null;
+        Linker.instance.physicalBoardManager.UpdateCollidersForThisTurn();
+    }
+    #endregion
+
+    #region pawn promotion
+    public void PromotionChoice()
+    {
+        //show choice UI
+    }
+
+    public void Promotion(PieceType type)
+    {
+        ChessEngine.instance.Promote(type);
+        NextTurn();
+    }
+
+    #endregion
+
+    #region visualization
+    void ShowWinner(TeamManager winningTeam)
     {
         Debug.Log(winningTeam.teamEnum+" win !");
     }
+
+    void MovePhysicalPiece()
+    {
+        foreach (ChessPiece piece in ChessEngine.instance.movedDuringThisTurn)
+        {
+            GameObject toMove = piece.team.piecesObjects[piece];
+            Linker.instance.physicalBoardManager.MovePieceOnBox(toMove,piece.currentPosition);
+        }
+    }
+
+    void CapturePhysicalPiece()
+    {
+        ChessPiece piece = ChessEngine.instance.capturedDuringThisTurn;
+        if (piece != null)
+        {
+            ChessEngine.instance.capturedDuringThisTurnGameobject.SetActive(false);
+        }
+    }
+    #endregion
 
 }

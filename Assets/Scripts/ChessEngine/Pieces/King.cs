@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class King : ChessPiece
 {
     private Dictionary<Vector2, bool> CastlingDirectionsAndBlockedState = new Dictionary<Vector2, bool>(); 
@@ -30,7 +31,7 @@ public class King : ChessPiece
         ChessPiece movedPiece = origin.piece;
         ChessPiece otherPiece = destination.piece;
         //manage castling case
-        if (otherPiece.canCastling && otherPiece.team == movedPiece.team)
+        if (otherPiece != null && otherPiece.canCastling && otherPiece.team == movedPiece.team)
         {
             //piece swapping
             origin.piece = otherPiece;
@@ -56,12 +57,18 @@ public class King : ChessPiece
 
     public override void ResetBlockedDirections()
     {
-        foreach (Vector2 direction in moveDirectionsAndBlockedState.Keys)
+        List<Vector2> temp = new List<Vector2>();
+        temp.AddRange(moveDirectionsAndBlockedState.Keys);
+
+        foreach (Vector2 direction in temp)
         {
             moveDirectionsAndBlockedState[direction] = false;
         }
 
-        foreach (Vector2 direction in CastlingDirectionsAndBlockedState.Keys)
+        temp = new List<Vector2>();
+        temp.AddRange(CastlingDirectionsAndBlockedState.Keys);
+
+        foreach (Vector2 direction in temp)
         {
             CastlingDirectionsAndBlockedState[direction] = false;
         }
@@ -75,20 +82,32 @@ public class King : ChessPiece
         {
             int originLine = (int)currentPosition.y;
             int originColumn = (int)currentPosition.x;
+            //avoiding InvalidOperationException
+            List<Vector2> temp = new List<Vector2>();
+            temp.AddRange(CastlingDirectionsAndBlockedState.Keys);
             //we test that there is no piece between the King and Tower 
             for (int i = 1; i <= 5; i++)
             {
-                foreach (Vector2 direction in CastlingDirectionsAndBlockedState.Keys)
+                foreach (Vector2 direction in temp)
                 {
                     //if this direction is not blocked
                     if (!CastlingDirectionsAndBlockedState[direction])
                     {
                         Vector2 target = new Vector2(originColumn, originLine) + direction * i;
+                        bool pieceTaken = false;
                         //test if the way between the king and tower is free of piece
-                        //test if the king is safe only at the true canstling positions
-                        if (isValidMovement(Linker.instance.board, (int)direction.y * i, (int)direction.x * i, (target.x == 0 || target.x == 7) && isSimulation))
+                        //test if the king is safe only at the true castling positions
+                        if (isValidMovement(ChessEngine.instance.board, (int)target.x, (int)target.y, out pieceTaken,(target.x == 0 || target.x == 7) && isSimulation))
                         {
-                            availableDestinations.Add(target);
+                            if (target.x == 0 || target.x == 7)
+                            {
+                                availableDestinations.Add(target);
+                            }
+                            if (pieceTaken)
+                            {
+                                //for this calculation turn this direction is blocked
+                                CastlingDirectionsAndBlockedState[direction] = true;
+                            }
                         }
                         else
                         {
@@ -102,17 +121,20 @@ public class King : ChessPiece
     }
 
     //test if a movement is valid
-    public override bool isValidMovement(Board board, int testedLine, int testedColumn, bool checkKingSafety = true)
+    public override bool isValidMovement(Board board, int testedColumn, int testedLine, out bool pieceTaken, bool checkKingSafety = true)
     {
-        ChessboardBoxData testedBox = board.boxesDatas[testedColumn][testedLine];
-        ChessPiece takenPiece = testedBox.piece;
+        pieceTaken = false;
         // the destination is out of the board
         if (testedLine < 0 || testedLine > 7 || testedColumn < 0 || testedColumn > 7) return false;
 
+        ChessboardBoxData testedBox = board.boxesDatas[testedColumn][testedLine];
+        ChessPiece takenPiece = testedBox.piece;
+
         //Allow castling
-        if (takenPiece != null && takenPiece.team == team && canCastling)
+        if (takenPiece != null)
         {
-            if (!canCastling) return false;
+            pieceTaken = true;
+            if (takenPiece.team == team) return canCastling && takenPiece.canCastling;
         }
 
         if (checkKingSafety)

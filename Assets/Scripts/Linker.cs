@@ -14,5 +14,5 @@ public class Linker : MonoBehaviour
     #endregion
 
     public GameManager gameManager;
-    public BoardConstructor boardConstructor;
+    public PhysicalBoardManager physicalBoardManager;
 }

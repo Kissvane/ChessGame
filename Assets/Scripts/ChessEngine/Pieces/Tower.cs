@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class Tower : ChessPiece
 {
     public override void SetMovementLimit()
@@ -16,17 +17,20 @@ public class Tower : ChessPiece
     }
 
     //test if a movement is valid
-    public override bool isValidMovement(Board board, int testedLine, int testedColumn, bool checkKingSafety = true)
+    public override bool isValidMovement(Board board, int testedColumn , int testedLine, out bool pieceTaken, bool checkKingSafety = true)
     {
-        ChessboardBoxData testedBox = board.boxesDatas[testedColumn][testedLine];
-        ChessPiece takenPiece = testedBox.piece;
+        pieceTaken = false;
         // the destination is out of the board
         if (testedLine < 0 || testedLine > 7 || testedColumn < 0 || testedColumn > 7) return false;
 
+        ChessboardBoxData testedBox = board.boxesDatas[testedColumn][testedLine];
+        ChessPiece takenPiece = testedBox.piece;
+
         //Allow castling
-        if (takenPiece != null && takenPiece.team == team && canCastling)
+        if (takenPiece != null)
         {
-            if (!canCastling) return false;
+            pieceTaken = true;
+            if (takenPiece.team == team) return canCastling & takenPiece.canCastling;
         }
 
         if (checkKingSafety)

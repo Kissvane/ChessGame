@@ -22,6 +22,7 @@ public class TeamManager
     public List<Fool> fools = new List<Fool>();
     public List<Tower> towers = new List<Tower>();
     public Dictionary<ChessPiece, GameObject> piecesObjects = new Dictionary<ChessPiece, GameObject>();
+    public List<ChessPiece> MovedPieces = new List<ChessPiece>();
 
     public TeamManager(ChessColor team)
     {

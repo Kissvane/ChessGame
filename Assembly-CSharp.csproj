@@ -64,7 +64,6 @@
   <ItemGroup>
     <Compile Include="Assets\3rdParty\Chess\Demo\Scripts\Main.cs" />
     <Compile Include="Assets\3rdParty\Chess\Scripts\ChessUiEngine.cs" />
-    <Compile Include="Assets\Scripts\BoardConstructor.cs" />
     <Compile Include="Assets\Scripts\ChessEngine\Board\Board.cs" />
     <Compile Include="Assets\Scripts\ChessEngine\Board\ChessboardBox.cs" />
     <Compile Include="Assets\Scripts\ChessEngine\ChessEngine.cs" />
@@ -76,8 +75,10 @@
     <Compile Include="Assets\Scripts\ChessEngine\Pieces\Queen.cs" />
     <Compile Include="Assets\Scripts\ChessEngine\Pieces\Tower.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
-    <Compile Include="Assets\Scripts\InputsManager.cs" />
+    <Compile Include="Assets\Scripts\InputManager.cs" />
     <Compile Include="Assets\Scripts\Linker.cs" />
+    <Compile Include="Assets\Scripts\PhysicalBoardManager.cs" />
+    <Compile Include="Assets\Scripts\PhysicalChessboardBox.cs" />
     <Compile Include="Assets\Scripts\TeamManager.cs" />
     <None Include="Assets\3rdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\3rdParty\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />

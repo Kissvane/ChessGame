@@ -37,7 +37,8 @@ public class Board
         return true;
     }
 
-    public void ChangePawnInQueen(Vector2 destination)
+    //only in queen at the moment
+    public void PromotePawn(Vector2 destination, PieceType type)
     {
         ChessboardBoxData birthCase = getBox((int)destination.x, (int)destination.y);
         Pawn pawn = (Pawn)birthCase.piece;
@@ -58,12 +59,13 @@ public class Board
     public void SetPieceOnBox(ChessPiece piece, int lineDestination, int columnDestination, TeamManager team)
     {
         //get the chessboard box
-        ChessboardBoxData target = Linker.instance.board.getBox(columnDestination, lineDestination);
+        ChessboardBoxData target = ChessEngine.instance.board.getBox(columnDestination, lineDestination);
         //assign a piece to the targeted chessboard box
         target.piece = piece;
         //assign the piece team
         piece.team = team;
         piece.currentPosition = new Vector2(columnDestination, lineDestination);
+        piece.SetMovementLimit();
         //add the piece in team piece's list
         team.piecesObjects.Add(piece, null);
     }
