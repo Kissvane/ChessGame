@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class Fool : ChessPiece
+public class Bishop : ChessPiece
 {
     public override void SetMovementLimit()
     {
@@ -17,6 +17,12 @@ public class Fool : ChessPiece
     public override void Captured()
     {
         base.Captured();
-        team.fools.Remove(this);
+        team.bishops.Remove(this);
+    }
+
+    public override void Liberated()
+    {
+        base.Liberated();
+        team.bishops.Add(this);
     }
 }

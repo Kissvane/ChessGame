@@ -18,14 +18,14 @@ public class Pawn : ChessPiece
         moveDirectionsAndBlockedState.Add(teamForward, false);
     }
 
-    public override void CalculateAvailableDestinations(bool isSimulation = false)
+    public override void CalculateAvailableDestinations(bool isSimulation, bool verbose = false)
     {
-        base.CalculateAvailableDestinations(isSimulation);
+        base.CalculateAvailableDestinations(isSimulation, verbose);
         availableEnPassantPosition = new Vector2(-1, -1);
         enPassantStoredPiece = null;
         Vector2 right = currentPosition + team.teamForward + Vector2.right;
         bool pieceTaken = false;
-        if (isValidMovement(ChessEngine.instance.board,(int)right.x,(int)right.y, out pieceTaken,isSimulation))
+        if (isValidMovement(ChessEngine.instance.board,(int)right.x,(int)right.y, out pieceTaken, isSimulation))
         {
             availableDestinations.Add(right);
         }
@@ -37,7 +37,7 @@ public class Pawn : ChessPiece
     }
 
     //test if a movement is valid
-    public override bool isValidMovement(Board board, int testedColumn, int testedLine, out bool pieceTaken, bool checkKingSafety = true)
+    public override bool isValidMovement(Board board, int testedColumn, int testedLine, out bool pieceTaken, bool isSimulation)
     {
         pieceTaken = false;
         // the destination is out of the board
@@ -77,41 +77,35 @@ public class Pawn : ChessPiece
         }
         else
         {
-            if (takenPiece != null) return false;
+            if (takenPiece != null)
+            {
+                pieceTaken = true;
+                return false;
+            }
         }
 
-        if (checkKingSafety)
-        {
-            //copy the current state of board
-            Board simulation = new Board(board);
-            //simulate the move
-            Move(simulation, (int)currentPosition.y, (int)currentPosition.x, testedLine, testedColumn);
-            //simulate the move and check if the king is safe
-            return simulation.IsMyKingSafe(team);
-        }
-        else
-        {
-            return true;
-        }
+        return FinalValidation(board, testedColumn, testedLine, isSimulation);
     }
 
-    public override void Move(Board board, int originLine, int originColumn, int testedLine, int testedColumn)
+    public override void Move(Board board, int testedLine, int testedColumn)
     {
-        base.Move(board, originLine, originColumn, testedLine, testedColumn);
+        //Debug.Log(name + " MOVE " + new Vector2(testedColumn, testedLine));
+        base.Move(board, testedLine, testedColumn);
         //Manage enPassant case
         if (currentPosition == availableEnPassantPosition)
         {
             board.getBox((int)enPassantStoredPiece.currentPosition.x, (int)enPassantStoredPiece.currentPosition.y).piece = null;
             enPassantStoredPiece.Captured();
+            ChessEngine.instance.game[ChessEngine.instance.game.Count - 1].capturedPiece = enPassantStoredPiece;
         }
     }
 
-    public override void Moved(Vector2 origin,Vector2 destination)
+    public override void Moved(Vector2 destination)
     {
         if (!hasMoved)
         {
             //if the first move is a 2 square move an enPassant capture is Possible during one turn 
-            if(Mathf.Abs(destination.y - origin.y) == 2)
+            if(Mathf.Abs(destination.y - currentPosition.y) == 2)
             {
                 enPassantAllowed = true;
             }
@@ -122,11 +116,49 @@ public class Pawn : ChessPiece
         {
             enPassantAllowed = false;
         }
-        base.Moved(origin, destination);
+        base.Moved(destination);
+        //Debug.Log(name + " MOVED " + currentPosition);
         //pawn promotion
         if ((destination.y == 7 && team.teamEnum == ChessColor.White) || (destination.y == 0 && team.teamEnum == ChessColor.Black))
         {
             ChessEngine.instance.waitingPromotion = this;
+        }
+    }
+
+    public override void RevertValuesIfNecessary(ChessboardBoxData box, bool liberated)
+    {
+        base.RevertValuesIfNecessary(box, liberated);
+        if (hasMoved)
+        {
+            Move penultimateMove = ChessEngine.instance.GetMyPenultimateMove(this);
+            if (penultimateMove != null)
+            {
+                enPassantAllowed = Mathf.Abs(penultimateMove.destination.y - penultimateMove.origin.y) == 2;
+            }
+        }
+        else
+        {
+            maxRange = 2;
+            enPassantAllowed = false;
+        }
+
+    }
+
+    public override void RedoValuesIfNecessary(ChessboardBoxData box)
+    {
+        base.RedoValuesIfNecessary(box);
+        if (hasMoved)
+        {
+            Move penultimateMove = ChessEngine.instance.GetMyPenultimateMove(this);
+            if (penultimateMove != null)
+            {
+                enPassantAllowed = Mathf.Abs(penultimateMove.destination.y - penultimateMove.origin.y) == 2;
+            }
+        }
+        else
+        {
+            maxRange = 2;
+            enPassantAllowed = false;
         }
     }
 
@@ -135,4 +167,11 @@ public class Pawn : ChessPiece
         base.Captured();
         team.pawns.Remove(this);
     }
+
+    public override void Liberated()
+    {
+        base.Liberated();
+        team.pawns.Add(this);
+    }
+
 }

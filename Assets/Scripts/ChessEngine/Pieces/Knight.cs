@@ -23,4 +23,11 @@ public class Knight : ChessPiece
         base.Captured();
         team.knights.Remove(this);
     }
+
+    public override void Liberated()
+    {
+        base.Liberated();
+        team.knights.Add(this);
+    }
+
 }

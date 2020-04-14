@@ -17,10 +17,11 @@ public abstract class ChessPiece
     public bool isKing = false;
     public bool isPawn = false;
     public bool enPassantAllowed = false;
+    public string name = null;
     //when i use vector2 to represent positions on the board x is the column and y the line
     public Vector2 currentPosition;
 
-    public virtual void CalculateAvailableDestinations(bool isSimulation = false)
+    public virtual void CalculateAvailableDestinations(bool isSimulation, bool verbose = false)
     {
         ResetBlockedDirections();
         availableDestinations.Clear();
@@ -38,27 +39,32 @@ public abstract class ChessPiece
                 if (!moveDirectionsAndBlockedState[direction])
                 {
                     bool pieceTaken = false;
-                    if (isValidMovement(ChessEngine.instance.board, (int)destinationToTest.x, (int)destinationToTest.y, out pieceTaken,isSimulation))
+                    if (isValidMovement(ChessEngine.instance.board, (int)destinationToTest.x, (int)destinationToTest.y, out pieceTaken, isSimulation))
                     {
+                        if (verbose) Debug.Log(currentPosition+" "+ name + " VALID DESTINATION " + destinationToTest);
                         availableDestinations.Add(new Vector2(originColumn, originLine)+direction*i);
-                        if (pieceTaken)
-                        {
-                            //for this calculation turn this direction is blocked
-                            moveDirectionsAndBlockedState[direction] = true;
-                        }
                     }
                     else
                     {
+                        if (verbose) Debug.Log(currentPosition + " " + name +" INVALID MOVE "+destinationToTest);
+                    }
+                    if (pieceTaken)
+                    {
+                        if (verbose) Debug.Log(currentPosition + " " + name + " PIECE TAKEN " + destinationToTest + ChessEngine.instance.board.getBox(destinationToTest).piece.name);
                         //for this calculation turn this direction is blocked
                         moveDirectionsAndBlockedState[direction] = true;
                     }
+                }
+                else
+                {
+                    if (verbose) Debug.Log(currentPosition + " " + name +" BLOCKED DIRECTION "+destinationToTest);
                 }
             }
         }
     }
 
     //test if a movement is valid
-    public virtual bool isValidMovement(Board board, int testedColumn, int testedLine, out bool pieceTaken,bool checkKingSafety = true)
+    public virtual bool isValidMovement(Board board, int testedColumn, int testedLine, out bool pieceTaken, bool isSimulation)
     {
         pieceTaken = false;
         // the destination is out of the board
@@ -66,7 +72,7 @@ public abstract class ChessPiece
 
         ChessboardBoxData testedBox = board.boxesDatas[testedColumn][testedLine];
         ChessPiece takenPiece = testedBox.piece;
-        
+
         //the box contains a friend piece movement is not valid
         if (takenPiece != null)
         {
@@ -74,14 +80,14 @@ public abstract class ChessPiece
             if (takenPiece.team == team) return false;
         }
 
-        if (checkKingSafety)
+        return FinalValidation(board, testedColumn, testedLine, isSimulation);
+    }
+
+    public bool FinalValidation(Board board, int testedColumn, int testedLine, bool isSimulation)
+    {
+        if (!isSimulation)
         {
-            //copy the current state of board
-            Board simulation = new Board(board);
-            //simulate the move
-            Move(simulation, (int)currentPosition.y, (int)currentPosition.x, testedLine, testedColumn);
-            //simulate the move and check if the king is safe
-            return simulation.IsMyKingSafe(team);
+            return CheckKingStatus(board, testedLine, testedColumn);
         }
         else
         {
@@ -89,22 +95,78 @@ public abstract class ChessPiece
         }
     }
 
-    public virtual void Move(Board board, int originLine, int originColumn, int testedLine, int testedColumn)
+    public bool CheckKingStatus(Board board, int testedLine, int testedColumn)
     {
-        ChessboardBoxData origin = board.getBox(originColumn, originLine);
-        ChessboardBoxData destination = board.getBox(testedColumn, testedLine);
-        ChessPiece movedPiece = origin.piece;
-        ChessPiece otherPiece = destination.piece;
- 
+        Move(board, testedLine, testedColumn);
+        bool isMyKingSafe = board.IsMyKingSafe(team);
+        /*if (isKing)
+        {
+            if (!isMyKingSafe)
+            {
+                Debug.Log(this.name + " position " + this.currentPosition + " IS NOT SAFE !");
+            }
+            else
+            {
+                Debug.Log(this.name + " position " + this.currentPosition + " IS SAFE !");
+            }
+        }*/
+        ChessEngine.instance.CancelLastMove(false);
+        return isMyKingSafe;
+    }
+
+    public virtual void ForcedReverseMove(Board board, Move move)
+    {
+        ChessboardBoxData originBox = board.getBox(move.destination);
+        ChessboardBoxData destinationBox = board.getBox(move.origin);
+        if (move.capturedPiece != null)
+        {
+            originBox = board.getBox(move.capturedPiece.currentPosition);
+            originBox.piece = move.capturedPiece;
+            move.capturedPiece.RevertValuesIfNecessary(originBox,true);
+        }
+        else
+        {
+            originBox.piece = null;
+        }
+
+        destinationBox.piece = this;
+        RevertValuesIfNecessary(destinationBox, false);
+        //Debug.Log(name+" REVERTED "+currentPosition);
+    }
+
+    public virtual void ForcedMove(Board board, Move move)
+    {
+        ChessboardBoxData originBox = board.getBox(move.origin);
+        ChessboardBoxData destinationBox = board.getBox(move.destination);
+        if (move.capturedPiece != null)
+        {
+            move.capturedPiece.Captured();
+        }
+        originBox.piece = null;
+        destinationBox.piece = this;
+        RedoValuesIfNecessary(destinationBox);
+        //ResetSpecialIfNecessary(destinationBox, false);
+        //Debug.Log(name+" REVERTED "+currentPosition);
+    }
+
+    public virtual void Move(Board board, int testedLine, int testedColumn)
+    {
+        ChessboardBoxData originBox = board.getBox(currentPosition);
+        ChessboardBoxData destinationBox = board.getBox(testedColumn, testedLine);
+        ChessPiece otherPiece = destinationBox.piece;
+
         if (otherPiece != null)
         {
             otherPiece.Captured();
         }
 
-        origin.piece = null;
-        destination.piece = movedPiece;
+        originBox.piece = null;
+        destinationBox.piece = this;
 
-        movedPiece.Moved(new Vector2(originColumn, originLine), new Vector2(testedColumn, testedLine));
+        Move moveToSave = new Move(currentPosition, new Vector2(testedColumn, testedLine), this, otherPiece, false);
+        ChessEngine.instance.game.Add(moveToSave);
+        //Debug.Log("MOVE SAVED " + moveToSave.movingPiece.name + " " + moveToSave.destination);
+        Moved(new Vector2(testedColumn, testedLine));
     }
 
     public virtual void ResetBlockedDirections()
@@ -118,20 +180,49 @@ public abstract class ChessPiece
         }
     }
 
-    public virtual void Moved(Vector2 origin, Vector2 destination)
+    public virtual void Moved(Vector2 destination)
     {
         hasMoved = true;
         currentPosition = destination;
         ChessEngine.instance.movedDuringThisTurn.Add(this);
+        //Debug.Log(name+" MOVED "+currentPosition);
     }
 
     public virtual void Captured()
     {
-        GameObject captured = team.piecesObjects[this];
-        team.other.Capture(this, captured);
+        team.other.Capture(this);
         ChessEngine.instance.capturedDuringThisTurn = this;
-        ChessEngine.instance.capturedDuringThisTurnGameobject = captured;
-        team.piecesObjects.Remove(this);
+        team.pieces.Remove(this);
+        //Debug.Log(name + " CAPTURED");
+    }
+
+    public virtual void Liberated()
+    {
+        ChessEngine.instance.liberated = this;
+        team.other.Liberate(this);
+        team.pieces.Add(this);
+        //Debug.Log(name+" LIBERATED");
+    }
+
+    public virtual void RevertValuesIfNecessary(ChessboardBoxData box, bool liberated)
+    {
+        currentPosition = new Vector2(box.column, box.line);
+        hasMoved = ChessEngine.instance.hasMovedInPreviousMove(this);
+        if (liberated)
+        {
+            Liberated();
+        }
+        else
+        {
+            ChessEngine.instance.reverted.Add(this);
+        }
+    }
+
+    public virtual void RedoValuesIfNecessary(ChessboardBoxData box)
+    {
+        currentPosition = new Vector2(box.column, box.line);
+        hasMoved = ChessEngine.instance.hasMovedInPreviousMove(this);
+        ChessEngine.instance.movedDuringThisTurn.Add(this);
     }
 
     public abstract void SetMovementLimit();

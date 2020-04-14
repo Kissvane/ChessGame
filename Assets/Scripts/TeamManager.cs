@@ -13,15 +13,14 @@ public class TeamManager
     public TeamManager other;
     public ChessColor teamEnum;
     public Vector2 teamForward;
-    public Dictionary<ChessPiece, GameObject> capturedPieces =  new Dictionary<ChessPiece, GameObject>();
-    //public List<ChessPiece> pieces;
+    public List<ChessPiece> capturedPieces =  new List<ChessPiece>();
     public King king;
     public List<Pawn> pawns = new List<Pawn>();
     public List<Queen> queens = new List<Queen>();
     public List<Knight> knights = new List<Knight>();
-    public List<Fool> fools = new List<Fool>();
-    public List<Tower> towers = new List<Tower>();
-    public Dictionary<ChessPiece, GameObject> piecesObjects = new Dictionary<ChessPiece, GameObject>();
+    public List<Bishop> bishops = new List<Bishop>();
+    public List<Rook> rooks = new List<Rook>();
+    public List<ChessPiece> pieces = new List<ChessPiece>();
     public List<ChessPiece> MovedPieces = new List<ChessPiece>();
 
     public TeamManager(ChessColor team)
@@ -37,11 +36,13 @@ public class TeamManager
         }
     }
 
-    public void Capture(ChessPiece piece, GameObject captured)
+    public void Capture(ChessPiece piece)
     {
-        capturedPieces.Add(piece, captured);
-        //TODO physical case
+        capturedPieces.Add(piece);
     }
 
-    
+    public void Liberate(ChessPiece piece)
+    {
+        capturedPieces.Remove(piece);
+    }
 }

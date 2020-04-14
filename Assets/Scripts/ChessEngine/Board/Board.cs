@@ -24,36 +24,110 @@ public class Board
         return boxesDatas[column][line];
     }
 
+    public ChessboardBoxData getBox(Vector2 position)
+    {
+        return boxesDatas[(int)position.x][(int)position.y];
+    }
+
     public bool IsMyKingSafe(TeamManager playingTeam)
     {
-        foreach(ChessPiece piece in playingTeam.other.piecesObjects.Keys)
+        ChessPiece testedPiece = null;
+        foreach(ChessPiece piece in playingTeam.other.pieces)
         {
             piece.CalculateAvailableDestinations(true);
             foreach (Vector2 destination in piece.availableDestinations)
             {
-                if (getBox((int)destination.x, (int)destination.y).piece.isKing) return false;
+                testedPiece = getBox(destination).piece;
+                if (testedPiece != null && testedPiece.team == playingTeam && testedPiece.isKing)
+                {
+                    //Debug.Log(piece.name+" "+piece.currentPosition+" THREAT THE KING "+testedPiece.currentPosition +" "+destination);
+                    return false;
+                }
             }
         }
         return true;
     }
 
-    //only in queen at the moment
-    public void PromotePawn(Vector2 destination, PieceType type)
+    public ChessPiece PromotePawn(Vector2 destination, PieceType type)
     {
         ChessboardBoxData birthCase = getBox((int)destination.x, (int)destination.y);
         Pawn pawn = (Pawn)birthCase.piece;
         TeamManager playingTeam = pawn.team;
-        GameObject PawnObject = playingTeam.piecesObjects[pawn];
 
-        Queen queen = new Queen();
-        queen.team = playingTeam;
-        queen.currentPosition = destination;
-        
-        playingTeam.piecesObjects.Add(queen, PawnObject);
-        playingTeam.queens.Add(queen);
+        ChessPiece newPiece = null;
 
-        playingTeam.piecesObjects.Remove(pawn);
+        switch (type)
+        {
+            case PieceType.Bishop:
+                Bishop bishop = new Bishop();
+                playingTeam.bishops.Add(bishop);
+                newPiece = bishop;
+                break;
+            case PieceType.Knight:
+                Knight knight = new Knight();
+                playingTeam.knights.Add(knight);
+                newPiece = knight;
+                break;
+            case PieceType.Rook:
+                Rook rook = new Rook();
+                rook.canCastling = false;
+                playingTeam.rooks.Add(rook);
+                newPiece = rook;
+                break;
+            default:
+                Queen queen = new Queen();
+                playingTeam.queens.Add(queen);
+                newPiece = queen;
+                break;
+        }
+
+        newPiece.name = pawn.name + "_promoted_"+type;
+        //ChessEngine.instance.game[ChessEngine.instance.game.Count - 1].movingPiece = newPiece;
+        newPiece.hasMoved = true;
+        SetPieceOnBox(newPiece, pawn.currentPosition, playingTeam);
+
+        playingTeam.pieces.Remove(pawn);
         playingTeam.pawns.Remove(pawn);
+
+        return newPiece;
+    }
+
+    public Pawn UnpromotePawn(Board board, Move toCancel)
+    {
+        ChessboardBoxData birthCase = getBox(toCancel.destination);
+        Pawn pawn = new Pawn();
+        ChessPiece promotedPiece = toCancel.movingPiece;
+        Debug.Log("UNPROMOTE "+promotedPiece.name);
+        TeamManager playingTeam = promotedPiece.team;
+
+        SetPieceOnBox(pawn, promotedPiece.currentPosition, playingTeam);
+
+        playingTeam.pieces.Remove(promotedPiece);
+        switch (promotedPiece)
+        {
+            case Rook rook:
+                playingTeam.rooks.Remove(rook);
+                break;
+            case Knight knight:
+                playingTeam.knights.Remove(knight);
+                break;
+            case Bishop bishop:
+                playingTeam.bishops.Remove(bishop);
+                break;
+            case Queen queen:
+                playingTeam.queens.Remove(queen);
+                break;
+            default:
+                throw new System.Exception("The unpromoted piece must be a rook, a knight, a bishop or a queen");
+        }
+
+        pawn.name = promotedPiece.name.Replace("_Promoted", "");
+        return pawn;
+    }
+
+    public void SetPieceOnBox(ChessPiece piece, Vector2 destination, TeamManager team)
+    {
+        SetPieceOnBox(piece,(int)destination.y, (int)destination.x, team);
     }
 
     public void SetPieceOnBox(ChessPiece piece, int lineDestination, int columnDestination, TeamManager team)
@@ -67,6 +141,26 @@ public class Board
         piece.currentPosition = new Vector2(columnDestination, lineDestination);
         piece.SetMovementLimit();
         //add the piece in team piece's list
-        team.piecesObjects.Add(piece, null);
+        team.pieces.Add(piece);
+        switch (piece)
+        {
+            case Rook rook:
+                team.rooks.Add(rook);
+                break;
+            case Bishop bishop:
+                team.bishops.Add(bishop);
+                break;
+            case Knight knight:
+                team.knights.Add(knight);
+                break;
+            case Queen queen:
+                team.queens.Add(queen);
+                break;
+            case Pawn pawn:
+                team.pawns.Add(pawn);
+                break;
+            default:
+                break;
+        }
     }
 }

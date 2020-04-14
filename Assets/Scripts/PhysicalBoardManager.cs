@@ -15,13 +15,14 @@ public class PhysicalBoardManager : MonoBehaviour
 
     public GameObject kingPfb;
     public GameObject queenPfb;
-    public GameObject foolPfb;
-    public GameObject towerPfb;
+    public GameObject bishopPfb;
+    public GameObject rookPfb;
     public GameObject pawnPfb;
     public GameObject knightPfb;
 
     public List<List<PhysicalChessboardBox>> boxes = new List<List<PhysicalChessboardBox>>();
-
+    public Dictionary<ChessPiece, GameObject> piecesToObjects = new Dictionary<ChessPiece, GameObject>();
+    public List<GameObject> promoted = new List<GameObject>();
     public Material boxMaterial;
     Material whiteMaterial;
     Material blackMaterial;
@@ -65,47 +66,47 @@ public class PhysicalBoardManager : MonoBehaviour
 
     void PositionTeam(TeamManager team)
     {
-        SetPieceOnBox(team.king,PieceType.King,"King"+team.teamEnum);
-        SetPieceOnBox(team.queens[0], PieceType.Queen, "Queen" + team.teamEnum);
-        SetPieceOnBox(team.fools[0],PieceType.Fool, "Fool" + team.teamEnum+"1");
-        SetPieceOnBox(team.fools[1], PieceType.Fool,"Fool" + team.teamEnum + "2");
-        SetPieceOnBox(team.towers[0], PieceType.Tower, "Tower" + team.teamEnum + "1");
-        SetPieceOnBox(team.towers[1], PieceType.Tower, "Tower" + team.teamEnum + "2");
-        SetPieceOnBox(team.knights[0],PieceType.Knight, "Knight" + team.teamEnum + "1");
-        SetPieceOnBox(team.knights[1],PieceType.Knight, "Knight" + team.teamEnum + "2");
+        SetPieceOnBox(team.king,"King"+team.teamEnum);
+        SetPieceOnBox(team.queens[0], "Queen" + team.teamEnum);
+        SetPieceOnBox(team.bishops[0], "Bishop" + team.teamEnum + "1");
+        SetPieceOnBox(team.bishops[1], "Bishop" + team.teamEnum + "2");
+        SetPieceOnBox(team.rooks[0], "Tower" + team.teamEnum + "1");
+        SetPieceOnBox(team.rooks[1], "Tower" + team.teamEnum + "2");
+        SetPieceOnBox(team.knights[0], "Knight" + team.teamEnum + "1");
+        SetPieceOnBox(team.knights[1], "Knight" + team.teamEnum + "2");
         int pawnCount = 0;
         foreach (Pawn pawn in team.pawns)
         {
             pawnCount++;
-            SetPieceOnBox(pawn,PieceType.Pawn, "Pawn" + team.teamEnum + pawnCount);
+            SetPieceOnBox(pawn, "Pawn" + team.teamEnum + pawnCount);
         }
     }
 
     //position a piece on the board
     //make the link between physical piece and engine piece
-    void SetPieceOnBox(ChessPiece piece, PieceType pieceType, string pieceName)
+    public void SetPieceOnBox(ChessPiece piece, string pieceName)
     {
         //get the chessboard box
         GameObject target = boxes[(int)piece.currentPosition.x][(int)piece.currentPosition.y].gameObject; 
 
         //create the piece in 3D
         GameObject toInstantiate = null;
-        switch (pieceType)
+        switch (piece)
         {
-            case PieceType.King:
+            case King king:
                 toInstantiate = kingPfb;
                 break;
-            case PieceType.Queen:
+            case Queen queen:
                 toInstantiate = queenPfb;
                 break;
-            case PieceType.Knight:
+            case Knight knight:
                 toInstantiate = knightPfb;
                 break;
-            case PieceType.Fool:
-                toInstantiate = foolPfb;
+            case Bishop bishop:
+                toInstantiate = bishopPfb;
                 break;
-            case PieceType.Tower:
-                toInstantiate = towerPfb;
+            case Rook rook:
+                toInstantiate = rookPfb;
                 break;
             default:
                 toInstantiate = pawnPfb;
@@ -130,13 +131,15 @@ public class PhysicalBoardManager : MonoBehaviour
         }
 
         //add the piece in team piece's list
-        piece.team.piecesObjects[piece] = instantiated;
+        //piece.team.piecesObjects[piece] = instantiated;
+        piecesToObjects.Add(piece,instantiated);
     }
     #endregion
 
-    public void MovePieceOnBox(GameObject toMove, Vector2 destination)
+    public void MovePieceOnBox(ChessPiece toMove, Vector2 destination)
     {
-        toMove.transform.position = boxes[(int)destination.x][(int)destination.y].transform.position + Vector3.up * 0.125f;
+        //Debug.Log(toMove.name);
+        piecesToObjects[toMove].transform.position = boxes[(int)destination.x][(int)destination.y].transform.position + Vector3.up * 0.125f;
     }
 
     #region Colliders activation & disactivation
@@ -153,7 +156,7 @@ public class PhysicalBoardManager : MonoBehaviour
 
     void EnablePlayingTeamColliders()
     {
-        foreach (ChessPiece piece in ChessEngine.instance.whoIsPlaying.piecesObjects.Keys)
+        foreach (ChessPiece piece in ChessEngine.instance.whoIsPlaying.pieces)
         {
             if(piece.availableDestinations.Count > 0) EnableCollider(piece.currentPosition, true);
         }

@@ -7,6 +7,7 @@ public class Queen : ChessPiece
 {
     public override void SetMovementLimit()
     {
+        moveDirectionsAndBlockedState = new Dictionary<Vector2, bool>();
         maxRange = 7;
         moveDirectionsAndBlockedState.Add(new Vector2(1f, 1f), false);
         moveDirectionsAndBlockedState.Add(new Vector2(1f, -1f), false);
@@ -23,4 +24,11 @@ public class Queen : ChessPiece
         base.Captured();
         team.queens.Remove(this);
     }
+
+    public override void Liberated()
+    {
+        base.Liberated();
+        team.queens.Add(this);
+    }
+
 }

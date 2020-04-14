@@ -9,36 +9,6 @@ public class PhysicalChessboardBox : MonoBehaviour
     public Renderer myRenderer;
     public bool isWhite = false;
 
-    private void OnMouseDown()
-    {
-        ChessPiece piece = ChessEngine.instance.GetPieceAtPosition((int)position.x,(int)position.y);
-        if (piece != null)
-        {
-            if (Linker.instance.gameManager.originMove == new Vector2(-1,-1))
-            {
-                Linker.instance.gameManager.SelectPieceToMove(position);
-            }
-            else
-            {
-                if(Linker.instance.gameManager.movingPiece.availableDestinations.Contains(position))
-                {
-                    Linker.instance.gameManager.MakeAMove(position);
-                }
-                else
-                {
-                    Linker.instance.gameManager.SelectPieceToMove(position);
-                }
-            }
-        }
-        else
-        {
-            if (Linker.instance.gameManager.originMove != new Vector2(-1, -1))
-            {
-                Linker.instance.gameManager.MakeAMove(position);
-            }
-        }
-    }
-
     public void SetHilightedColor()
     {
         myRenderer.material.EnableKeyword("_EMISSION");
