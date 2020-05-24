@@ -40,7 +40,6 @@ public class Board
                 testedPiece = getBox(destination).piece;
                 if (testedPiece != null && testedPiece.team == playingTeam && testedPiece.isKing)
                 {
-                    //Debug.Log(piece.name+" "+piece.currentPosition+" THREAT THE KING "+testedPiece.currentPosition +" "+destination);
                     return false;
                 }
             }
@@ -82,7 +81,6 @@ public class Board
         }
 
         newPiece.name = pawn.name + "_promoted_"+type;
-        //ChessEngine.instance.game[ChessEngine.instance.game.Count - 1].movingPiece = newPiece;
         newPiece.hasMoved = true;
         SetPieceOnBox(newPiece, pawn.currentPosition, playingTeam);
 
@@ -97,7 +95,6 @@ public class Board
         ChessboardBoxData birthCase = getBox(toCancel.destination);
         Pawn pawn = new Pawn();
         ChessPiece promotedPiece = toCancel.movingPiece;
-        Debug.Log("UNPROMOTE "+promotedPiece.name);
         TeamManager playingTeam = promotedPiece.team;
 
         SetPieceOnBox(pawn, promotedPiece.currentPosition, playingTeam);

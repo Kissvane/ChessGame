@@ -21,7 +21,7 @@ public class TeamManager
     public List<Bishop> bishops = new List<Bishop>();
     public List<Rook> rooks = new List<Rook>();
     public List<ChessPiece> pieces = new List<ChessPiece>();
-    public List<ChessPiece> MovedPieces = new List<ChessPiece>();
+    public List<ChessPiece> movedPieces = new List<ChessPiece>();
 
     public TeamManager(ChessColor team)
     {

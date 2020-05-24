@@ -10,7 +10,6 @@ using UnityEngine;
 public class ChessEngine
 {
     #region variables
-    //public bool whiteIsPlaying = true;
     public TeamManager whiteTeam;
     public TeamManager blackTeam;
     public TeamManager whoIsPlaying;
@@ -28,7 +27,6 @@ public class ChessEngine
     public ChessPiece beforePromotion = null;
     public ChessPiece afterPromotion = null;
 
-    //public GameObject capturedDuringThisTurnGameobject = null;
     public Pawn waitingPromotion = null;
     public TeamManager winningTeam = null;
 
@@ -233,7 +231,6 @@ public class ChessEngine
         }
         //remove the cancelled move from the game move list
         game.RemoveAt(game.Count - 1);
-        //Debug.Log("MOVE CANCELLED "+toCancel.movingPiece.name+" "+toCancel.destination);
     }
 
     public void PlayLastCancelledMove()
@@ -243,7 +240,6 @@ public class ChessEngine
         Move lastCancelledMove = cancelledMoves[cancelledMoves.Count - 1];
         cancelledMoves.RemoveAt(cancelledMoves.Count-1);
         lastCancelledMove.movingPiece.ForcedMove(board, lastCancelledMove);
-        //Move(lastCancelledMove.origin,lastCancelledMove.destination);
 
         //this is a promotion move
         if (lastCancelledMove.promotionType != PieceType.Pawn)
@@ -267,7 +263,6 @@ public class ChessEngine
 
     public void StartNextTurn()
     {
-        //Debug.Log("NEXT TURN");
         ResetMoveLists();
         whoIsPlaying = whoIsPlaying.other;
         bool hasValidMove = CalculateAvaibleMoves(false);
@@ -287,7 +282,6 @@ public class ChessEngine
             if (piece.availableDestinations.Count > 0)
             {
                 hasValidMove = true;
-                //Debug.Log(piece.name+" has valids "+piece.availableDestinations.Count+" moves");
             }
         }
         //reset enPassant for Pawns

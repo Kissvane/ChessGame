@@ -64,6 +64,7 @@ public class PhysicalBoardManager : MonoBehaviour
         PositionTeam(ChessEngine.instance.blackTeam);
     }
 
+    //position the physical pieces
     void PositionTeam(TeamManager team)
     {
         SetPieceOnBox(team.king,"King"+team.teamEnum);
@@ -136,9 +137,9 @@ public class PhysicalBoardManager : MonoBehaviour
     }
     #endregion
 
+    //move the physical piece
     public void MovePieceOnBox(ChessPiece toMove, Vector2 destination)
     {
-        //Debug.Log(toMove.name);
         piecesToObjects[toMove].transform.position = boxes[(int)destination.x][(int)destination.y].transform.position + Vector3.up * 0.125f;
     }
 
@@ -148,6 +149,7 @@ public class PhysicalBoardManager : MonoBehaviour
         DisableForbiddenColliders();
     }
 
+    //Enable collider of box with valid move
     void DisableForbiddenColliders()
     {
         DisableAllColliders();

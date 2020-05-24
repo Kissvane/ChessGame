@@ -31,7 +31,6 @@ public class GameManager : MonoBehaviour
             //manage physical unpromotion
             if (ChessEngine.instance.beforePromotion != null)
             {
-                //TransformPhysicalPiece(ChessEngine.instance.beforePromotion, ChessEngine.instance.afterPromotion);
                 ActivateGoodPhysicalPiece(ChessEngine.instance.beforePromotion, ChessEngine.instance.afterPromotion);
             }
             RevertPhysicalPiece();
@@ -49,7 +48,6 @@ public class GameManager : MonoBehaviour
             if (ChessEngine.instance.beforePromotion != null)
             {
                 ActivateGoodPhysicalPiece(ChessEngine.instance.beforePromotion, ChessEngine.instance.afterPromotion);
-                //TransformPhysicalPiece(ChessEngine.instance.beforePromotion, ChessEngine.instance.afterPromotion);
             }
 
             //manage next turn
@@ -208,7 +206,6 @@ public class GameManager : MonoBehaviour
     {
         string oldName = Linker.instance.physicalBoardManager.piecesToObjects[oldPiece].name;
         Linker.instance.physicalBoardManager.piecesToObjects[oldPiece].SetActive(false);
-        //Linker.instance.physicalBoardManager.piecesToObjects.Remove(oldPiece);
         string promotionType = "";
         switch (newPiece)
         {

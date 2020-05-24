@@ -83,6 +83,7 @@ public abstract class ChessPiece
         return FinalValidation(board, testedColumn, testedLine, isSimulation);
     }
 
+    //Validate the move by testing king status if it's not a simulation
     public bool FinalValidation(Board board, int testedColumn, int testedLine, bool isSimulation)
     {
         if (!isSimulation)
@@ -99,17 +100,6 @@ public abstract class ChessPiece
     {
         Move(board, testedLine, testedColumn);
         bool isMyKingSafe = board.IsMyKingSafe(team);
-        /*if (isKing)
-        {
-            if (!isMyKingSafe)
-            {
-                Debug.Log(this.name + " position " + this.currentPosition + " IS NOT SAFE !");
-            }
-            else
-            {
-                Debug.Log(this.name + " position " + this.currentPosition + " IS SAFE !");
-            }
-        }*/
         ChessEngine.instance.CancelLastMove(false);
         return isMyKingSafe;
     }
@@ -131,7 +121,6 @@ public abstract class ChessPiece
 
         destinationBox.piece = this;
         RevertValuesIfNecessary(destinationBox, false);
-        //Debug.Log(name+" REVERTED "+currentPosition);
     }
 
     public virtual void ForcedMove(Board board, Move move)
@@ -144,9 +133,8 @@ public abstract class ChessPiece
         }
         originBox.piece = null;
         destinationBox.piece = this;
+        //update values again after forced move
         RedoValuesIfNecessary(destinationBox);
-        //ResetSpecialIfNecessary(destinationBox, false);
-        //Debug.Log(name+" REVERTED "+currentPosition);
     }
 
     public virtual void Move(Board board, int testedLine, int testedColumn)
@@ -165,10 +153,10 @@ public abstract class ChessPiece
 
         Move moveToSave = new Move(currentPosition, new Vector2(testedColumn, testedLine), this, otherPiece, false);
         ChessEngine.instance.game.Add(moveToSave);
-        //Debug.Log("MOVE SAVED " + moveToSave.movingPiece.name + " " + moveToSave.destination);
         Moved(new Vector2(testedColumn, testedLine));
     }
 
+    //reset the data structure that allow the piece to calculate availables moves
     public virtual void ResetBlockedDirections()
     {
         List<Vector2> temp = new List<Vector2>();
@@ -180,30 +168,31 @@ public abstract class ChessPiece
         }
     }
 
+    //operations to do when a piece is moved
     public virtual void Moved(Vector2 destination)
     {
         hasMoved = true;
         currentPosition = destination;
         ChessEngine.instance.movedDuringThisTurn.Add(this);
-        //Debug.Log(name+" MOVED "+currentPosition);
     }
 
+    //operations to do when a piece is captured
     public virtual void Captured()
     {
         team.other.Capture(this);
         ChessEngine.instance.capturedDuringThisTurn = this;
         team.pieces.Remove(this);
-        //Debug.Log(name + " CAPTURED");
     }
 
+    //operations to do when a piece is liberated
     public virtual void Liberated()
     {
         ChessEngine.instance.liberated = this;
         team.other.Liberate(this);
         team.pieces.Add(this);
-        //Debug.Log(name+" LIBERATED");
     }
 
+    //revert some piece values after special move
     public virtual void RevertValuesIfNecessary(ChessboardBoxData box, bool liberated)
     {
         currentPosition = new Vector2(box.column, box.line);
@@ -218,6 +207,7 @@ public abstract class ChessPiece
         }
     }
 
+    //update values again after forced move
     public virtual void RedoValuesIfNecessary(ChessboardBoxData box)
     {
         currentPosition = new Vector2(box.column, box.line);
